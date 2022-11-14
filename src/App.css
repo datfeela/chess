@@ -1,38 +1,124 @@
-.App {
-  text-align: center;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    letter-spacing: -0.015em;
+}
+*,
+*:before,
+*:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+:focus,
+:active {
+    outline: none;
+}
+a:focus,
+a:active {
+    outline: none;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+nav,
+footer,
+header,
+aside {
+    display: block;
+}
+html,
+body {
+    background: #fff;
+    height: 100%;
+    width: 100%;
+    font-size: 100%;
+    line-height: 1;
+    line-height: 150%;
+    -ms-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-family: "Montserrat", sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body.no-scroll {
+    height: 100vh;
+    overflow-y: hidden;
+}
+input,
+button,
+textarea {
+    font-family: inherit;
+}
+input::-ms-clear {
+    display: none;
+}
+button {
+    cursor: pointer;
+}
+button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+a,
+a:visited {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: none;
+}
+ul li {
+    list-style: none;
+}
+img {
+    vertical-align: top;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+img::selection {
+    background: space;
 }
 
-.App-link {
-  color: #61dafb;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: inherit;
+    font-weight: 400;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* common */
+
+#root {
+    height: 100%;
+}
+
+main {
+    @apply h-full
+    mt-10
+    bg-slate-900 text-white;
+}
+
+header {
+    @apply fixed z-10
+    w-screen h-10 
+    left-0 top-0
+    px-5
+    border-b border-solid border-gray-400
+    flex justify-center items-center
+    bg-slate-900 text-white;
+}
+
+.wrap-main {
+    @apply pt-5 px-4
+    md:pt-8 md:px-6
+    xl:pt-12 xl:px-8;
+}
+
+.chessGrid {
+    @apply w-full grid grid-cols-8 grid-rows-8 aspect-square;
 }
