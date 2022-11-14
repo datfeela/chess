@@ -1,251 +1,248 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 const initialState: ChessState = {
     pieces: {
         white: {
             rook1: {
-                type: "rook",
+                type: 'rook',
                 square: {
                     y: 1,
-                    x: 1
-                }
-
+                    x: 1,
+                },
             },
             knight1: {
-                type: "knight",
+                type: 'knight',
                 square: {
                     y: 1,
-                    x: 2
-                }
+                    x: 2,
+                },
             },
             bishop1: {
-                type: "bishop",
+                type: 'bishop',
                 square: {
                     y: 1,
-                    x: 3
-                }
+                    x: 3,
+                },
             },
             queen: {
-                type: "queen",
+                type: 'queen',
                 square: {
                     y: 1,
-                    x: 4
-                }
+                    x: 4,
+                },
             },
             king: {
-                type: "king",
+                type: 'king',
                 square: {
                     y: 1,
-                    x: 5
-                }
+                    x: 5,
+                },
             },
             bishop2: {
-                type: "bishop",
+                type: 'bishop',
                 square: {
                     y: 1,
-                    x: 6
-                }
+                    x: 6,
+                },
             },
             knight2: {
-                type: "knight",
+                type: 'knight',
                 square: {
                     y: 1,
-                    x: 7
-                }
+                    x: 7,
+                },
             },
             rook2: {
-                type: "rook",
+                type: 'rook',
                 square: {
                     y: 1,
-                    x: 8
-                }
+                    x: 8,
+                },
             },
             pawn1: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 1
-                }
+                    x: 1,
+                },
             },
             pawn2: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 2
-                }
+                    x: 2,
+                },
             },
             pawn3: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 3
-                }
+                    x: 3,
+                },
             },
             pawn4: {
-                type: "pawn"
-                ,
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 4
-                }
+                    x: 4,
+                },
             },
             pawn5: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 5
-                }
+                    x: 5,
+                },
             },
             pawn6: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 6
-                }
+                    x: 6,
+                },
             },
             pawn7: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 6,
-                    x: 7
-                }
+                    x: 7,
+                },
             },
             pawn8: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 2,
-                    x: 8
-                }
-            }
+                    x: 8,
+                },
+            },
         },
         black: {
             rook1: {
-                type: "rook",
+                type: 'rook',
                 square: {
                     y: 8,
-                    x: 1
-                }
-
+                    x: 1,
+                },
             },
             knight1: {
-                type: "knight",
+                type: 'knight',
                 square: {
                     y: 8,
-                    x: 2
-                }
+                    x: 2,
+                },
             },
             bishop1: {
-                type: "bishop",
+                type: 'bishop',
                 square: {
                     y: 8,
-                    x: 3
-                }
+                    x: 3,
+                },
             },
             queen: {
-                type: "queen",
+                type: 'queen',
                 square: {
                     y: 8,
-                    x: 4
-                }
+                    x: 4,
+                },
             },
             king: {
-                type: "king",
+                type: 'king',
                 square: {
                     y: 8,
-                    x: 5
-                }
+                    x: 5,
+                },
             },
             bishop2: {
-                type: "bishop",
+                type: 'bishop',
                 square: {
                     y: 8,
-                    x: 6
-                }
+                    x: 6,
+                },
             },
             knight2: {
-                type: "knight",
+                type: 'knight',
                 square: {
                     y: 8,
-                    x: 7
-                }
+                    x: 7,
+                },
             },
             rook2: {
-                type: "rook",
+                type: 'rook',
                 square: {
                     y: 8,
-                    x: 8
-                }
+                    x: 8,
+                },
             },
             pawn1: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 1
-                }
+                    x: 1,
+                },
             },
             pawn2: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 2
-                }
+                    x: 2,
+                },
             },
             pawn3: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 3
-                }
+                    x: 3,
+                },
             },
             pawn4: {
-                type: "pawn"
-                ,
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 4
-                }
+                    x: 4,
+                },
             },
             pawn5: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 5
-                }
+                    x: 5,
+                },
             },
             pawn6: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 6
-                }
+                    x: 6,
+                },
             },
             pawn7: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 7
-                }
+                    x: 7,
+                },
             },
             pawn8: {
-                type: "pawn",
+                type: 'pawn',
                 square: {
                     y: 7,
-                    x: 8
-                }
-            }
+                    x: 8,
+                },
+            },
         },
     },
+    isWhiteMove: true,
 }
 
 const chessSlice = createSlice({
-    name: "chess",
+    name: 'chess',
     initialState,
     reducers: {
         makeMove(state, action: PayloadAction<MakeMoveAction>) {
-            let p = action.payload;
+            let p = action.payload
             state.pieces[p.color][p.piece].square = p.newPosition
-        }
-    }
+        },
+    },
 })
 
 export const { makeMove } = chessSlice.actions
@@ -257,9 +254,10 @@ export default chessSlice.reducer
 
 export interface ChessState {
     pieces: {
-        white: Pieces,
+        white: Pieces
         black: Pieces
     }
+    isWhiteMove: boolean
 }
 
 export interface Pieces {
@@ -282,7 +280,7 @@ export interface Pieces {
 }
 
 export interface Piece {
-    type: PieceType,
+    type: PieceType
     square: Square | null
     isTaken?: boolean
 }
@@ -292,15 +290,15 @@ export interface Square {
     x: SquareNum
 }
 
-export type PieceType = "rook" | "knight" | "bishop" | "queen" | "king" | "pawn"
+export type PieceType = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn'
 export type SquareNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
-export type PieceColor = "white" | "black"
+export type PieceColor = 'white' | 'black'
 
 // actions
 
 export interface MakeMoveAction {
-    piece: keyof Pieces,
-    color: PieceColor,
+    piece: keyof Pieces
+    color: PieceColor
     newPosition: Square
 }
 

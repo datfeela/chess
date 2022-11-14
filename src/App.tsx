@@ -1,9 +1,8 @@
-import React from 'react';
-import "./App.css";
-import Chess from "./components/Chess/Chess";
+import React from 'react'
+import './App.css'
+import Chess from './components/Chess/Chess'
 
 export default function App(): JSX.Element {
-
     return (
         <>
             <header>header</header>
@@ -11,5 +10,5 @@ export default function App(): JSX.Element {
                 <Chess />
             </main>
         </>
-    );
-}   
+    )
+}
