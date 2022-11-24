@@ -104,7 +104,7 @@ const initialState: ChessState = {
             pawn7: {
                 type: 'pawn',
                 square: {
-                    y: 6,
+                    y: 2,
                     x: 7,
                 },
             },
@@ -241,6 +241,7 @@ const chessSlice = createSlice({
         makeMove(state, action: PayloadAction<MakeMoveAction>) {
             let p = action.payload
             state.pieces[p.color][p.piece].square = p.newPosition
+            state.isWhiteMove = !state.isWhiteMove
         },
     },
 })

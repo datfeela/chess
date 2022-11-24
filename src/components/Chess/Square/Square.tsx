@@ -1,47 +1,66 @@
 import React from 'react'
-
 import { SquareNum } from '../../../redux/chessSlice'
+import { handleSquareClickProps } from '../Board/Board'
 
-export const Square = React.memo(
-    ({ isSquareWhite, isSquareActive, x, y }: SquareProps) => {
-        console.log('square render')
+export const Square = ({
+    isSquareWhite,
+    isSquareActive,
+    isPieceOnSquareActive,
+    x,
+    y,
+    handleSquareClick,
+}: SquareProps) => {
+    // console.log('square render')
 
-        return (
-            <div
-                className={`
+    const onSquareClick = () => {
+        if (!isSquareActive) return
+        handleSquareClick({ squareCoords: { x, y } })
+    }
+
+    return (
+        <div
+            onClick={onSquareClick}
+            className={`
                 _Hex
                 relative z-10
                 w-full aspect-square
                 flex justify-center items-center
-                ${isSquareWhite ? 'bg-white' : 'bg-black'}
+                ${isSquareWhite ? 'bg-brown-200' : 'bg-brown-600'}
+                ${
+                    isPieceOnSquareActive &&
+                    `before:absolute 
+                    before:w-full before:aspect-square
+                    before:bg-sky-700 before:bg-opacity-75`
+                } 
             `}
-            >
-                {isSquareActive ? (
-                    <div
-                        className={`
+        >
+            {isSquareActive ? (
+                <div
+                    className={`
                     _Hex_active
                     absolute z-50 top-0 left-0
                     w-full aspect-square
                 `}
-                    >
-                        <div
-                            className='
+                >
+                    <div
+                        className='
                         _Circle
                         aspect-square rounded-50
-                    bg-blue-700
+                    bg-sky-700
                     opacity-75
                     '
-                        ></div>
-                    </div>
-                ) : null}
-            </div>
-        )
-    },
-)
+                    ></div>
+                </div>
+            ) : null}
+        </div>
+    )
+}
 
 interface SquareProps {
     isSquareWhite: boolean
     isSquareActive: boolean
+    isPieceOnSquareActive: boolean
     x: SquareNum
     y: SquareNum
+    handleSquareClick: ({ squareCoords }: handleSquareClickProps) => void
 }

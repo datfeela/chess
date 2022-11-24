@@ -5,6 +5,12 @@ module.exports = {
     content: ['./src/**/*.{js,jsx,ts,tsx}'],
     theme: {
         extend: {
+            colors: {
+                'brown': {
+                    200: '#F0D9B5',
+                    600: '#B58863'
+                }
+            },
             borderRadius: {
                 50: '50%',
             },

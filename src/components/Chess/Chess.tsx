@@ -1,7 +1,13 @@
 import styled from 'styled-components'
+import { useAppSelector } from '../../hooks/redux'
+import { RootState } from '../../redux/store'
 import { Board } from './Board/Board'
 
 function Chess(): JSX.Element {
+    const isWhiteMove = useAppSelector(
+        (state: RootState) => state.chess.isWhiteMove
+    )
+
     return (
         <Wrap className='_ChessMain wrap-main'>
             <div
@@ -21,7 +27,14 @@ function Chess(): JSX.Element {
                 px-4 py-2
             '
             >
-                sidebar right
+                <span
+                    className='
+                    _whichMove
+                    font-bold text-xl 
+                '
+                >
+                    {isWhiteMove ? 'White move' : 'Black move'}
+                </span>
             </div>
         </Wrap>
     )

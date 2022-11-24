@@ -1,5 +1,4 @@
 import React from 'react'
-
 import styled from 'styled-components'
 import {
     PieceColor,
@@ -8,34 +7,44 @@ import {
     Square,
 } from '../../../redux/chessSlice'
 
-export const Piece = React.memo(
-    ({ name, square, type, color, activatePiece }: PieceProps) => {
-        // console.log('piece render')
+// is React.memo needed here?
+export const Piece = ({
+    name,
+    square,
+    type,
+    color,
+    handlePieceClick,
+}: PieceProps) => {
+    // console.log('piece render')
 
-        const handlePieceClick = () => {
-            if (square !== null)
-                activatePiece({
-                    currentSquare: square,
-                    type: type,
-                    color: color,
-                    name: name,
-                })
-        }
+    const onPieceClick = () => {
+        //if piece is still on field, square !== null
+        if (square === null) return
 
-        return (
-            <PieceStyled
-                onClick={handlePieceClick}
-                square={square ? square : null}
-                className='
+        handlePieceClick({
+            currentSquare: square,
+            type,
+            color,
+            name,
+        })
+    }
+
+    return (
+        <PieceStyled
+            onClick={onPieceClick}
+            square={square ? square : null}
+            color={color ? color : null}
+            className={`
             _Piece
-            text-red-600
-        '
-            >
-                {square && square.x} {square && square.y}
-            </PieceStyled>
-        )
-    },
-)
+            font-bold ${color === 'white' ? 'text-white' : 'text-black'}
+            text-sm
+        `}
+        >
+            {color} <br />
+            {type}
+        </PieceStyled>
+    )
+}
 
 // export const Piece = React.memo(PieceNoMemo)
 
@@ -47,10 +56,10 @@ interface PieceProps {
     square: Square | null
     color: PieceColor
     // checkForMoves: ({ currentSquare, type, color }: CheckForMovesProps) => void
-    activatePiece: ({ name, color }: ActivatePieceProps) => void
+    handlePieceClick: ({ name, color }: handlePieceClickProps) => void
 }
 
-export interface ActivatePieceProps {
+export interface handlePieceClickProps {
     name: keyof Pieces
     currentSquare: Square
     type: PieceType

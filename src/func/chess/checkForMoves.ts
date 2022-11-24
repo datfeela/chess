@@ -96,14 +96,14 @@ function checkSquares({
                     if (color === 'white') {
                         defaultDirectionsNum.push(
                             { x: 1, y: 1, canOnlyTake: true },
-                            { x: -1, y: 1, canOnlyTake: true },
+                            { x: -1, y: 1, canOnlyTake: true }
                         )
                         defaultDirectionsNum.push({ x: 0, y: 1 })
                     }
                     if (color === 'black') {
                         defaultDirectionsNum.push(
                             { x: 1, y: -1, canOnlyTake: true },
-                            { x: -1, y: -1, canOnlyTake: true },
+                            { x: -1, y: -1, canOnlyTake: true }
                         )
                         defaultDirectionsNum.push({ x: 0, y: -1 })
                     }
@@ -117,7 +117,7 @@ function checkSquares({
                         { x: 2, y: 1 },
                         { x: 2, y: -1 },
                         { x: -2, y: 1 },
-                        { x: -2, y: -1 },
+                        { x: -2, y: -1 }
                     )
                     break
                 }
@@ -126,7 +126,7 @@ function checkSquares({
                         { x: 1, y: 0 },
                         { x: -1, y: 0 },
                         { x: 0, y: 1 },
-                        { x: 0, y: -1 },
+                        { x: 0, y: -1 }
                     )
                     break
                 case 'diagonally':
@@ -134,7 +134,7 @@ function checkSquares({
                         { x: 1, y: 1 },
                         { x: 1, y: -1 },
                         { x: -1, y: 1 },
-                        { x: 1, y: -1 },
+                        { x: -1, y: -1 }
                     )
                     break
             }
