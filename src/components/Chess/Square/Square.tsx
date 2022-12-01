@@ -5,6 +5,7 @@ import { handleSquareClickProps } from '../Board/Board'
 export const Square = ({
     isSquareWhite,
     isSquareActive,
+    isEnemyPieceOnSquare,
     isPieceOnSquareActive,
     x,
     y,
@@ -17,6 +18,8 @@ export const Square = ({
         handleSquareClick({ squareCoords: { x, y } })
     }
 
+    // todo: add red bg on hover to pieces than could be taken in PIECE component, fix red bg in THIS component
+
     return (
         <div
             onClick={onSquareClick}
@@ -28,28 +31,39 @@ export const Square = ({
                 ${isSquareWhite ? 'bg-brown-200' : 'bg-brown-600'}
                 ${
                     isPieceOnSquareActive &&
-                    `before:absolute 
+                    `before:absolute
                     before:w-full before:aspect-square
-                    before:bg-sky-700 before:bg-opacity-75`
-                } 
+                    before:bg-opacity-75 before:bg-sky-700`
+                }
             `}
         >
             {isSquareActive ? (
                 <div
                     className={`
                     _Hex_active
-                    absolute z-50 top-0 left-0
+                    group absolute z-50 top-0 left-0
                     w-full aspect-square
+                    flex justify-center items-center
                 `}
                 >
-                    <div
-                        className='
-                        _Circle
-                        aspect-square rounded-50
-                    bg-sky-700
-                    opacity-75
-                    '
-                    ></div>
+                    {isEnemyPieceOnSquare ? (
+                        <div
+                            className='
+                            _Square_canTake
+                            w-full aspect-square
+                            border-solid border-6 border-red-500
+                        '
+                        ></div>
+                    ) : (
+                        <div
+                            className={`
+                        _Circle_move
+                        w-1/3 aspect-square rounded-50
+                        opacity-75 bg-sky-700
+                        group-hover:w-full group-hover:rounded-none
+                        `}
+                        ></div>
+                    )}
                 </div>
             ) : null}
         </div>
@@ -59,6 +73,7 @@ export const Square = ({
 interface SquareProps {
     isSquareWhite: boolean
     isSquareActive: boolean
+    isEnemyPieceOnSquare: boolean
     isPieceOnSquareActive: boolean
     x: SquareNum
     y: SquareNum

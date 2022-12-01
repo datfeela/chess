@@ -70,7 +70,15 @@ export function checkForPieceMoves({
         }
     }
 
+    let piecesCanBeTakenCoords = findPiecesCanBeTakenCoords(possibleMoves)
+
+    return { possibleMoves, piecesCanBeTakenCoords }
+}
+
+function findPiecesCanBeTakenCoords(possibleMoves: PossibleSquare[]) {
     return possibleMoves
+        .filter((move) => move.isEnemyPieceOnSquare)
+        .map((move) => ({ x: move.x, y: move.y }))
 }
 
 function checkSquares({
@@ -200,10 +208,13 @@ function checkSquaresOneDir({
                 ...squareForCheck,
                 isEnemyPieceOnSquare,
             }
+            //todo: create canOnlyMove
+            // if piece can't move but can take in this direction
             if (canOnlyTake) {
                 if (isEnemyPieceOnSquare) possibleSquares.push(possibleSquare)
                 return possibleSquares
             }
+            // if piece can move and take in this direction
             if (!canOnlyTake) {
                 possibleSquares.push(possibleSquare)
             }

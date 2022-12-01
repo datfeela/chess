@@ -5,22 +5,27 @@ import {
     Square as SquareType,
     PieceColor,
     makeMove,
+    Piece as PieceType,
 } from '../../../redux/chessSlice'
 import { RootState } from '../../../redux/store'
 import { handlePieceClickProps, Piece } from '../Piece/Piece'
 import { checkForPieceMoves } from '../../../func/chess/checkForMoves'
 import { usePiecesPositions } from '../../../hooks/chessHooks'
 import { Square } from '../Square/Square'
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState } from 'react'
 import { selectIsWhiteMove, selectPieces } from '../../../redux/chessSelectors'
+import { posix } from 'path'
 
 export const Board = React.memo(() => {
     // console.log('board render')
-    // TODO: refactor component(actual move), rename pieces,
-    // TODO: display which move is now
-    // TODO: make a commit pls
+
+    // TODO: refactor component(actual move)
 
     const dispatch = useAppDispatch()
+
+    // State
+    // Squares state
+    const [activeSquares, setActiveSquares] = useState(null as ActiveSquares)
 
     // Pieces state
     const pieces = useAppSelector((state: RootState) => selectPieces(state))
@@ -31,6 +36,9 @@ export const Board = React.memo(() => {
     const blackPieces: Array<JSX.Element> = []
     const { blackPiecesPositions, whitePiecesPositions } = usePiecesPositions()
     const [activePiece, setActivePiece] = useState(null as ActivePiece)
+    const [piecesCanBeTakenPositions, setPiecesCanBeTakenPositions] = useState(
+        [] as SquareType[]
+    )
 
     // Pieces functions
     const handlePieceClick = (props: handlePieceClickProps) => {
@@ -47,7 +55,7 @@ export const Board = React.memo(() => {
                     square.x === currentSquare.x &&
                     square.y === currentSquare.y
                 ) {
-                    console.log('hello')
+                    console.log('hello i want eat...')
                 }
             }
         }
@@ -63,47 +71,101 @@ export const Board = React.memo(() => {
                 (!isWhiteMove && color === 'black')
             ) {
                 setActivePiece({ name, color, currentSquare })
-                const possibleMoves = checkForPieceMoves({
-                    currentSquare: currentSquare,
-                    type: type,
-                    color: color,
-                    blackPiecesPositions: blackPiecesPositions,
-                    whitePiecesPositions: whitePiecesPositions,
-                })
+                const { possibleMoves, piecesCanBeTakenCoords } =
+                    checkForPieceMoves({
+                        currentSquare: currentSquare,
+                        type: type,
+                        color: color,
+                        blackPiecesPositions: blackPiecesPositions,
+                        whitePiecesPositions: whitePiecesPositions,
+                    })
                 setActiveSquares(possibleMoves)
+                setPiecesCanBeTakenPositions(piecesCanBeTakenCoords)
             }
         }
     }
 
     //Pieces render
-    Object.entries(pieces.white).forEach((piece) => {
+    // Object.entries(pieces.white).forEach((piece) => {
+    //     const pieceName = piece[0]
+    //     const pieceProps = piece[1]
+    //     let isPieceCanBeTaken = false
+    //     for (let pos of piecesCanBeTakenPositions) {
+    //         if (pos.x === pieceProps.square.x && pos.y === pieceProps.square.y)
+    //             console.log('found', pos)
+    //     }
+    //     whitePieces.push(
+    //         <Piece
+    //             key={`white${pieceName}`}
+    //             name={pieceName as keyof Pieces}
+    //             type={pieceProps.type}
+    //             square={pieceProps.square}
+    //             color={'white'}
+    //             handlePieceClick={handlePieceClick}
+    //             activePieceCurSquare={activePiece?.currentSquare}
+    //             piecesCanBeTakenPositions={piecesCanBeTakenPositions}
+    //         />
+    //     )
+    // })
+
+    for (let pieceKey in pieces.white) {
+        const pieceProps = pieces.white[pieceKey as keyof Pieces]
+
+        let isPieceCanBeTaken = false
+        for (let pos of piecesCanBeTakenPositions) {
+            if (
+                pos.x === pieceProps.square?.x &&
+                pos.y === pieceProps.square?.y
+            )
+                isPieceCanBeTaken = true
+        }
+        const isPieceActive =
+            activePiece?.currentSquare.x === pieceProps.square?.x &&
+            activePiece?.currentSquare.y === pieceProps.square?.y
+
         whitePieces.push(
             <Piece
-                key={`white${piece[0]}`}
-                name={piece[0] as keyof Pieces}
-                type={piece[1].type}
-                square={piece[1].square}
+                key={`white${pieceKey}`}
+                name={pieceKey as keyof Pieces}
+                type={pieceProps.type}
+                square={pieceProps.square}
                 color={'white'}
                 handlePieceClick={handlePieceClick}
+                isPieceActive={isPieceActive}
+                isPieceCanBeTaken={isPieceCanBeTaken}
             />
         )
-    })
-    Object.entries(pieces.black).forEach((piece) => {
-        blackPieces.push(
+    }
+
+    for (let pieceKey in pieces.black) {
+        const pieceProps = pieces.black[pieceKey as keyof Pieces]
+
+        let isPieceCanBeTaken = false
+        for (let pos of piecesCanBeTakenPositions) {
+            if (
+                pos.x === pieceProps.square?.x &&
+                pos.y === pieceProps.square?.y
+            )
+                isPieceCanBeTaken = true
+        }
+
+        const isPieceActive =
+            activePiece?.currentSquare.x === pieceProps.square?.x &&
+            activePiece?.currentSquare.y === pieceProps.square?.y
+
+        whitePieces.push(
             <Piece
-                key={`white${piece[0]}`}
-                name={piece[0] as keyof Pieces}
-                type={piece[1].type}
-                square={piece[1].square}
+                key={`black${pieceKey}`}
+                name={pieceKey as keyof Pieces}
+                type={pieceProps.type}
+                square={pieceProps.square}
                 color={'black'}
                 handlePieceClick={handlePieceClick}
+                isPieceActive={isPieceActive}
+                isPieceCanBeTaken={isPieceCanBeTaken}
             />
         )
-    })
-
-    // Squares state
-    let squares = []
-    let [activeSquares, setActiveSquares] = useState(null as ActiveSquares)
+    }
 
     // Squares functions
     const handleSquareClick: any = (props: handleSquareClickProps) => {
@@ -119,7 +181,8 @@ export const Board = React.memo(() => {
                     })
                 )
                 setActivePiece(null)
-                setActiveSquares(null)
+                setActiveSquares([])
+                setPiecesCanBeTakenPositions([])
             }
         }
     }
@@ -131,8 +194,12 @@ export const Board = React.memo(() => {
             isSquareWhite = !isSquareWhite
             for (let x = 1; x < 9; x++) {
                 let isSquareActive = false
+                let isEnemyPieceOnSquare = false
                 activeSquares?.forEach((square) => {
-                    x === square.x && y === square.y && (isSquareActive = true)
+                    if (x === square.x && y === square.y) {
+                        isSquareActive = true
+                        isEnemyPieceOnSquare = square.isEnemyPieceOnSquare
+                    }
                 })
 
                 const isPieceOnSquareActive =
@@ -145,6 +212,7 @@ export const Board = React.memo(() => {
                         key={`${x}${y}`}
                         isSquareWhite={isSquareWhite}
                         isSquareActive={isSquareActive}
+                        isEnemyPieceOnSquare={isEnemyPieceOnSquare}
                         isPieceOnSquareActive={isPieceOnSquareActive}
                         x={x as SquareNum}
                         y={y as SquareNum}
@@ -158,7 +226,7 @@ export const Board = React.memo(() => {
 
     // squares render
     let isSquareWhite = true
-    squares = createSquares()
+    const squares = createSquares()
 
     return (
         <div
@@ -189,7 +257,11 @@ export const Board = React.memo(() => {
     )
 })
 
-type ActiveSquares = null | SquareType[]
+interface ActiveSquare extends SquareType {
+    isEnemyPieceOnSquare: boolean
+}
+
+type ActiveSquares = null | ActiveSquare[]
 type ActivePiece = null | {
     name: keyof Pieces
     color: PieceColor

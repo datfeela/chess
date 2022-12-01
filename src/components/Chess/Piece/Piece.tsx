@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import {
     PieceColor,
@@ -13,6 +12,8 @@ export const Piece = ({
     square,
     type,
     color,
+    isPieceCanBeTaken,
+    isPieceActive,
     handlePieceClick,
 }: PieceProps) => {
     // console.log('piece render')
@@ -29,19 +30,49 @@ export const Piece = ({
         })
     }
 
+    let svgName = color === 'white' ? 'w' : 'b'
+    switch (type) {
+        case 'rook':
+            svgName += 'Rook'
+            break
+        case 'knight':
+            svgName += 'Knight'
+            break
+        case 'bishop':
+            svgName += 'Bishop'
+            break
+        case 'queen':
+            svgName += 'Queen'
+            break
+        case 'king':
+            svgName += 'King'
+            break
+        case 'pawn':
+            svgName += 'Pawn'
+            break
+        default:
+            break
+    }
+
     return (
         <PieceStyled
             onClick={onPieceClick}
             square={square ? square : null}
-            color={color ? color : null}
             className={`
             _Piece
-            font-bold ${color === 'white' ? 'text-white' : 'text-black'}
-            text-sm
+            absolute ${isPieceActive ? 'z-50' : 'z-20'}
+            w-1/8 aspect-square
+            flex justify-center items-center
+            transition-all duration-500
+            before:absolute before:w-full before:aspect-square
+            ${isPieceCanBeTaken && 'hover:before:bg-red-500'}
         `}
         >
-            {color} <br />
-            {type}
+            <img
+                className='relative z-30'
+                src={`/chess/pieces/${svgName}.svg`}
+                alt=''
+            />
         </PieceStyled>
     )
 }
@@ -55,8 +86,10 @@ interface PieceProps {
     type: PieceType
     square: Square | null
     color: PieceColor
-    // checkForMoves: ({ currentSquare, type, color }: CheckForMovesProps) => void
+    isPieceCanBeTaken: boolean
+    isPieceActive: boolean
     handlePieceClick: ({ name, color }: handlePieceClickProps) => void
+    // piecesCanBeTakenPositions: Square[]
 }
 
 export interface handlePieceClickProps {
@@ -66,21 +99,9 @@ export interface handlePieceClickProps {
     color: PieceColor
 }
 
-// export interface CheckForMovesProps {
-
-// }
-
 // styled
 
 const PieceStyled = styled.div<any>`
-    position: absolute;
-    z-index: 20;
-    width: 12.5%;
-    aspect-ratio: 1 / 1 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
     top: ${(props) =>
         props.square ? `calc(12.5% *${8 - props.square.y})` : '125%'};
     right: ${(props) =>
