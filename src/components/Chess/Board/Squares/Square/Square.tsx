@@ -1,6 +1,5 @@
-import React from 'react'
-import { SquareNum } from '../../../redux/chessSlice'
-import { handleSquareClickProps } from '../Board/Board'
+import { SquareNum } from '../../../../../redux/chessSlice'
+import { handleSquareClickProps } from '../Squares'
 
 export const Square = ({
     isSquareWhite,
@@ -18,22 +17,19 @@ export const Square = ({
         handleSquareClick({ squareCoords: { x, y } })
     }
 
-    // todo: add red bg on hover to pieces than could be taken in PIECE component, fix red bg in THIS component
-
     return (
         <div
             onClick={onSquareClick}
             className={`
                 _Hex
                 relative z-10
-                w-full aspect-square
-                flex justify-center items-center
+                w-full aspect-square flexCenter
                 ${isSquareWhite ? 'bg-brown-200' : 'bg-brown-600'}
                 ${
                     isPieceOnSquareActive &&
                     `before:absolute
                     before:w-full before:aspect-square
-                    before:bg-opacity-75 before:bg-sky-700`
+                    before:bg-opacity-75 before:bg-blue-default`
                 }
             `}
         >
@@ -51,7 +47,7 @@ export const Square = ({
                             className='
                             _Square_canTake
                             w-full aspect-square
-                            border-solid border-6 border-red-500
+                            border-solid border-6 border-red-default
                         '
                         ></div>
                     ) : (
@@ -59,7 +55,7 @@ export const Square = ({
                             className={`
                         _Circle_move
                         w-1/3 aspect-square rounded-50
-                        opacity-75 bg-sky-700
+                        opacity-75 bg-blue-default
                         group-hover:w-full group-hover:rounded-none
                         `}
                         ></div>

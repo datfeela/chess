@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
     mode: 'jit',
     purge: ['./public/**/*.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
@@ -6,9 +7,15 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'brown': {
+                brown: {
                     200: '#F0D9B5',
                     600: '#B58863'
+                },
+                red: {
+                    default: '#ef4444'
+                },
+                blue: {
+                    default: '#0369a1'
                 }
             },
             borderWidth: {

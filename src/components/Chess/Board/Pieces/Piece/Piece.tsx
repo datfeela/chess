@@ -4,7 +4,8 @@ import {
     Pieces,
     PieceType,
     Square,
-} from '../../../redux/chessSlice'
+} from '../../../../../redux/chessSlice'
+import { handlePieceClickProps } from '../../Interfaces'
 
 // is React.memo needed here?
 export const Piece = ({
@@ -62,10 +63,9 @@ export const Piece = ({
             _Piece
             absolute ${isPieceActive ? 'z-50' : 'z-20'}
             w-1/8 aspect-square
-            flex justify-center items-center
             transition-all duration-500
             before:absolute before:w-full before:aspect-square
-            ${isPieceCanBeTaken && 'hover:before:bg-red-500'}
+            ${isPieceCanBeTaken && 'hover:before:bg-red-default'}
         `}
         >
             <img
@@ -77,7 +77,14 @@ export const Piece = ({
     )
 }
 
-// export const Piece = React.memo(PieceNoMemo)
+// styled
+
+const PieceStyled = styled.div<any>`
+    top: ${(props) =>
+        props.square ? `calc(12.5% *${8 - props.square.y})` : '125%'};
+    right: ${(props) =>
+        props.square ? `calc(12.5% *${8 - props.square.x})` : '125%'};
+`
 
 // types
 
@@ -91,19 +98,3 @@ interface PieceProps {
     handlePieceClick: ({ name, color }: handlePieceClickProps) => void
     // piecesCanBeTakenPositions: Square[]
 }
-
-export interface handlePieceClickProps {
-    name: keyof Pieces
-    currentSquare: Square
-    type: PieceType
-    color: PieceColor
-}
-
-// styled
-
-const PieceStyled = styled.div<any>`
-    top: ${(props) =>
-        props.square ? `calc(12.5% *${8 - props.square.y})` : '125%'};
-    right: ${(props) =>
-        props.square ? `calc(12.5% *${8 - props.square.x})` : '125%'};
-`

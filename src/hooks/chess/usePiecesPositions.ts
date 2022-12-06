@@ -1,8 +1,8 @@
-import { Square } from '../redux/chessSlice'
-import { RootState } from '../redux/store'
-import { useAppSelector } from './redux'
+import { Square } from '../../redux/chessSlice'
+import { RootState } from '../../redux/store'
+import { useAppSelector } from '../redux'
 
-export const usePiecesPositions = () => {
+export default function usePiecesPositions() {
     const pieces = useAppSelector((state: RootState) => state.chess.pieces)
     const whitePiecesPositions: Array<Square> = []
     const blackPiecesPositions: Array<Square> = []
