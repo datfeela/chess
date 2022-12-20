@@ -13,6 +13,7 @@ export type ActiveSquares = null | ActiveSquare[]
 
 export interface ActivePiece {
     name: keyof Pieces
+    type: PieceType
     color: PieceColor
     currentSquare: Square
 }

@@ -28,7 +28,7 @@ export const Board = React.memo(() => {
         color,
         name,
     }: handlePieceClickProps) {
-        setActivePiece({ name, color, currentSquare })
+        setActivePiece({ name, type, color, currentSquare })
         const { possibleMoves, piecesCanBeTakenCoords } = checkForPieceMoves({
             currentSquare: currentSquare,
             type: type,
@@ -44,8 +44,8 @@ export const Board = React.memo(() => {
     const makeMove = ({ activePiece, squareCoords }: MakeMoveProps) => {
         dispatch(
             makeMoveDispatch({
-                color: activePiece?.color,
-                piece: activePiece?.name,
+                color: activePiece.color,
+                piece: activePiece.name,
                 newPosition: squareCoords,
             })
         )
@@ -59,7 +59,7 @@ export const Board = React.memo(() => {
             className='
             _Board 
             relative
-            w-full max-w-3xl mx-auto
+            w-full max-w-3xl aspect-square mx-auto
         '
         >
             <Squares

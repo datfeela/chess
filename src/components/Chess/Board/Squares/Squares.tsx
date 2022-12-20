@@ -6,12 +6,21 @@ import {
 } from '../Interfaces'
 import { Square } from './Square/Square'
 import { Square as SquareType } from '../../../../redux/chessSlice'
+import { useAppSelector } from '../../../../hooks/redux'
+import { RootState } from '../../../../redux/store'
+import { selectLastMove } from '../../../../redux/chessSelectors'
 
 export default function Squares({
     activeSquares,
     activePiece,
     makeMove,
 }: SquaresProps) {
+    // state
+    const lastMove = useAppSelector((state: RootState) => selectLastMove(state))
+    const lastMoveSquares = Object.keys(lastMove).length
+        ? [lastMove.previousPosition, lastMove.newPosition]
+        : null
+
     // functions
     const handleSquareClick: any = (props: handleSquareClickProps) => {
         const { squareCoords } = props
@@ -29,6 +38,7 @@ export default function Squares({
         for (let y = 8; y > 0; y--) {
             isSquareWhite = !isSquareWhite
             for (let x = 1; x < 9; x++) {
+                // is square active right now
                 let isSquareActive = false
                 let isEnemyPieceOnSquare = false
                 activeSquares?.forEach((square) => {
@@ -38,9 +48,18 @@ export default function Squares({
                     }
                 })
 
+                // is piece on square active
                 const isPieceOnSquareActive =
                     activePiece?.currentSquare.x === x &&
                     activePiece?.currentSquare.y === y
+
+                // was square active last turn
+                let wasSquareActiveLastTurn = false
+                lastMoveSquares?.forEach((square) => {
+                    if (x === square.x && y === square.y) {
+                        wasSquareActiveLastTurn = true
+                    }
+                })
 
                 isSquareWhite = !isSquareWhite
                 squares.push(
@@ -48,6 +67,7 @@ export default function Squares({
                         key={`${x}${y}`}
                         isSquareWhite={isSquareWhite}
                         isSquareActive={isSquareActive}
+                        wasSquareActiveLastTurn={wasSquareActiveLastTurn}
                         isEnemyPieceOnSquare={isEnemyPieceOnSquare}
                         isPieceOnSquareActive={isPieceOnSquareActive}
                         x={x as SquareNum}
@@ -60,7 +80,7 @@ export default function Squares({
         return squares
     }
 
-    // squares render
+    // render
     const squares = createSquares()
 
     return (

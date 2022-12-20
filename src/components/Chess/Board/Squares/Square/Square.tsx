@@ -4,6 +4,7 @@ import { handleSquareClickProps } from '../Squares'
 export const Square = ({
     isSquareWhite,
     isSquareActive,
+    wasSquareActiveLastTurn,
     isEnemyPieceOnSquare,
     isPieceOnSquareActive,
     x,
@@ -61,6 +62,14 @@ export const Square = ({
                         ></div>
                     )}
                 </div>
+            ) : wasSquareActiveLastTurn ? (
+                <div
+                    className='
+                            _Square_activeLastTurn
+                            w-full aspect-square
+                            opacity-75 bg-green-500 
+                        '
+                ></div>
             ) : null}
         </div>
     )
@@ -69,6 +78,7 @@ export const Square = ({
 interface SquareProps {
     isSquareWhite: boolean
     isSquareActive: boolean
+    wasSquareActiveLastTurn: boolean
     isEnemyPieceOnSquare: boolean
     isPieceOnSquareActive: boolean
     x: SquareNum

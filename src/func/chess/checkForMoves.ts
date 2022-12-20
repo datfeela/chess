@@ -314,7 +314,11 @@ type DefaultMoveDirection =
     | 'diagonally'
     | 'pawnMove'
     | 'knightMove'
-type AdditionalMoveDirection = 'pawnEnPassant' | 'pawnChange' | 'castling'
+type AdditionalMoveDirection =
+    | 'pawnFirstMove'
+    | 'pawnEnPassant'
+    | 'pawnChange'
+    | 'castling'
 
 type MoveDirectionNum = 0 | 1 | -1 | -2 | 2
 // direction on X and Y axes normally, -2 | 2 for knight, because his move is direct 2/1
