@@ -1,86 +1,132 @@
+import { Square, SquareNum } from './../../redux/chessSlice'
+import { checkForCheck } from './checkForCheck'
 import {
-    PieceColor,
-    PieceType,
-    Square,
-    SquareNum,
-} from './../../redux/chessSlice'
+    CheckForMovesProps,
+    checkMoveProps,
+    CheckSquaresOneDirProps,
+    CheckSquaresProps,
+    MoveDirectionNum,
+    PiecesState,
+    PossibleSquare,
+    PossibleSquareWithCheckmate,
+} from './chessHelpersTypes'
 
+// !isWithCheckmateCheck should be true only when called from Board.tsx, or from Board's effects, when activating a piece or checking for check/stale-mate
+// !with this setting enabled moves will be calculated recursively with check/checkmate/stalemate check
 export function checkForPieceMoves({
+    isWithCheckmateCheck = true,
+    isWithSelfCheckmateCheck = true,
     type,
+    name,
+    piecesState,
+    currentSquare,
     color,
-    ...props
+    blackPiecesPositions,
+    whitePiecesPositions,
 }: CheckForMovesProps) {
-    let possibleMoves = [] as Array<PossibleSquare>
+    let possibleMoves = [] as PossibleSquare[]
 
+    const checkSquaresSharedProps = {
+        color,
+        currentSquare,
+        blackPiecesPositions,
+        whitePiecesPositions,
+    }
+
+    // call checkSquares based on piece type
     switch (type) {
         case 'pawn': {
             possibleMoves = checkSquares({
-                color,
                 range: 1,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['pawnMove'],
+                additionalDirections: [
+                    'pawnFirstMove',
+                    'pawnEnPassant',
+                    'pawnChange',
+                ],
             })
             // pawnEnPassant?
             break
         }
         case 'rook': {
             possibleMoves = checkSquares({
-                color,
                 range: 7,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['straight'],
             })
             break
         }
         case 'knight': {
             possibleMoves = checkSquares({
-                color,
                 range: 1,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['knightMove'],
             })
             break
         }
         case 'bishop': {
             possibleMoves = checkSquares({
-                color,
                 range: 7,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['diagonally'],
             })
             break
         }
         case 'queen': {
             possibleMoves = checkSquares({
-                color,
                 range: 7,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['diagonally', 'straight'],
             })
             break
         }
         case 'king': {
             possibleMoves = checkSquares({
-                color,
                 range: 1,
-                ...props,
+                ...checkSquaresSharedProps,
                 defaultDirections: ['diagonally', 'straight'],
             })
             break
         }
     }
 
-    let piecesCanBeTakenCoords = findPiecesCanBeTakenCoords(possibleMoves)
+    let piecesCanBeTakenCoords = [] as Square[]
+    // got all moves piece can make, need to filter wrong moves and find out if move is a check
+    // if !isWithCheckmateCheck - it's already being checked recursively for next move
+    if (isWithCheckmateCheck || isWithSelfCheckmateCheck) {
+        let possibleMovesWithCheckmate = checkForCheck({
+            possibleMoves,
+            piecesState: piecesState as PiecesState,
+            activePieceColor: color,
+            activePieceName: name,
+            isCheckCheck: isWithCheckmateCheck,
+        }) as PossibleSquareWithCheckmate[]
 
+        piecesCanBeTakenCoords = selectPiecesCanBeTakenCoords(
+            possibleMovesWithCheckmate
+        )
+        return {
+            possibleMoves: possibleMovesWithCheckmate,
+            piecesCanBeTakenCoords,
+        }
+    }
+
+    piecesCanBeTakenCoords = selectPiecesCanBeTakenCoords(possibleMoves)
     return { possibleMoves, piecesCanBeTakenCoords }
 }
 
-function findPiecesCanBeTakenCoords(possibleMoves: PossibleSquare[]) {
+// helpers for checkForPieceMoves
+
+function selectPiecesCanBeTakenCoords(
+    possibleMoves: PossibleSquare[] | PossibleSquareWithCheckmate[]
+) {
     return possibleMoves
         .filter((move) => move.isEnemyPieceOnSquare)
         .map((move) => ({ x: move.x, y: move.y }))
 }
 
+// call multiple one-direction/additional-direction checks
 function checkSquares({
     currentSquare,
     color,
@@ -165,12 +211,13 @@ function checkSquares({
 
     additionalDirections &&
         additionalDirections.forEach((direction) => {
-            console.log('add switch')
+            //todo: need to add additional directions logic
         })
 
     return possibleSquares
 }
 
+// is move in certain direction is possible
 function checkSquaresOneDir({
     currentSquare,
     color,
@@ -226,6 +273,7 @@ function checkSquaresOneDir({
     return possibleSquares
 }
 
+// is move on certain square is possible
 function checkMove(props: checkMoveProps) {
     const { square, color, whitePiecesPositions, blackPiecesPositions } = {
         ...props,
@@ -251,14 +299,15 @@ function checkMove(props: checkMoveProps) {
     }
     for (let i = blackPiecesPositions.length; i > 0; i--) {
         if (
-            (blackPiecesPositions[i - 1] !== null &&
-                blackPiecesPositions[i - 1].x) === square.x &&
+            blackPiecesPositions[i - 1] !== null &&
+            blackPiecesPositions[i - 1].x === square.x &&
             blackPiecesPositions[i - 1].y === square.y
         ) {
             if (color === 'black') return checkResult
             if (color === 'white') {
                 checkResult.isMovePossible = true
                 checkResult.isEnemyPieceOnSquare = true
+
                 return checkResult
             }
         }
@@ -266,59 +315,3 @@ function checkMove(props: checkMoveProps) {
     checkResult.isMovePossible = true
     return checkResult
 }
-
-interface CheckForMovesProps {
-    type: PieceType
-    currentSquare: Square
-    color: PieceColor
-    whitePiecesPositions: Array<Square>
-    blackPiecesPositions: Array<Square>
-}
-
-interface CheckSquaresProps {
-    currentSquare: Square
-    color: PieceColor
-    whitePiecesPositions: Array<Square>
-    blackPiecesPositions: Array<Square>
-    range?: 1 | 7
-    defaultDirections?: Array<DefaultMoveDirection>
-    additionalDirections?: Array<AdditionalMoveDirection>
-}
-
-interface CheckSquaresOneDirProps {
-    currentSquare: Square
-    color: PieceColor
-    whitePiecesPositions: Array<Square>
-    blackPiecesPositions: Array<Square>
-    range: 1 | 2 | 7
-    moveX: MoveDirectionNum
-    moveY: MoveDirectionNum
-    canOnlyTake?: boolean
-}
-
-interface checkMoveProps {
-    square: Square
-    color: PieceColor
-    whitePiecesPositions: Array<Square>
-    blackPiecesPositions: Array<Square>
-}
-
-interface PossibleSquare extends Square {
-    isEnemyPieceOnSquare: boolean
-}
-
-// interface CheckForDiagonalMovesProps extends CheckForMoveProps {}
-
-type DefaultMoveDirection =
-    | 'straight'
-    | 'diagonally'
-    | 'pawnMove'
-    | 'knightMove'
-type AdditionalMoveDirection =
-    | 'pawnFirstMove'
-    | 'pawnEnPassant'
-    | 'pawnChange'
-    | 'castling'
-
-type MoveDirectionNum = 0 | 1 | -1 | -2 | 2
-// direction on X and Y axes normally, -2 | 2 for knight, because his move is direct 2/1

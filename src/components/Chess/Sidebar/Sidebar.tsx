@@ -12,7 +12,7 @@ export const Sidebar = () => {
         <div
             className='
                 _sidebar
-                max-h-full overflow-y-scroll
+                max-h-full min-h-1/4 overflow-y-scroll
                 px-4 py-2 my-auto 
                 border border-gray-400 border-solid
             '

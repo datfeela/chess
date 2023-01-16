@@ -19,6 +19,5 @@ const Wrap = styled.div`
     gap: 25px;
     grid-template-columns: 1fr 2.5fr 1fr;
     max-height: 768px;
-    height: 100%;
     position: relative;
 `

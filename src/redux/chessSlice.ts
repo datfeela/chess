@@ -264,7 +264,7 @@ const chessSlice = createSlice({
             state.isWhiteMove = !state.isWhiteMove //mb to thunk
         },
         updateHistory(state, action: PayloadAction<MakeMovePayload>) {
-            const { color, piece, newPosition } = action.payload
+            const { color, piece, newPosition, isCheck } = action.payload
             const { type, square } = state.pieces[color][piece]
 
             // if black move, we got full move, need to update general history
@@ -279,6 +279,7 @@ const chessSlice = createSlice({
                         type: type,
                         previousPosition: square as Square,
                         newPosition,
+                        isCheck,
                     },
                 }
             }
@@ -289,6 +290,7 @@ const chessSlice = createSlice({
                 type: type,
                 previousPosition: square as Square,
                 newPosition,
+                isCheck,
             }
         },
     },
@@ -306,7 +308,7 @@ const createThunk = createAsyncThunk.withTypes<{
 
 export const makeMove = createThunk(
     'chess/makeMove',
-    (payload: MakeMovePayload, { dispatch, getState }) => {
+    (payload: MakeMovePayload, { dispatch }) => {
         dispatch(updateHistory(payload))
         dispatch(updatePieces(payload))
     }
@@ -373,6 +375,7 @@ export interface Move {
     type: PieceType
     previousPosition: Square
     newPosition: Square
+    isCheck: boolean
 }
 
 export type PieceType = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn'
@@ -385,6 +388,8 @@ export interface MakeMovePayload {
     color: PieceColor
     piece: keyof Pieces
     newPosition: Square
+    isCheck: boolean
+    //todo: isTake?
 }
 
 export interface SetActiveHexesAction {

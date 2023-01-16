@@ -7,6 +7,7 @@ import {
 
 interface ActiveSquare extends Square {
     isEnemyPieceOnSquare: boolean
+    isCheck: boolean
 }
 
 export type ActiveSquares = null | ActiveSquare[]
@@ -25,6 +26,7 @@ export type ActivePieceNullable = ActivePiece | null
 export interface MakeMoveProps {
     activePiece: ActivePiece
     squareCoords: Square
+    isCheck: boolean
 }
 
 export interface handlePieceClickProps {

@@ -25,9 +25,11 @@ export default function Squares({
     const handleSquareClick: any = (props: handleSquareClickProps) => {
         const { squareCoords } = props
         if (!activeSquares || !activePiece) return
+
         for (let square of activeSquares) {
             if (square.x === squareCoords.x && square.y === squareCoords.y)
-                makeMove({ activePiece, squareCoords })
+                //! makeMove({ activePiece, squareCoords })
+                makeMove({ activePiece, squareCoords, isCheck: square.isCheck })
         }
     }
 

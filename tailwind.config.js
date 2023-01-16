@@ -34,6 +34,9 @@ module.exports = {
             maxWidth: {
                 6: '6rem',
             },
+            minHeight: {
+                '1/4': '25%',
+            },
             height: {
                 '1/4': '25%',
                 '1/2': '50%',

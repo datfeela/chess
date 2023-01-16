@@ -8,7 +8,6 @@ export const MovesHistory = () => {
     )
 
     const historyElements: JSX.Element[] = []
-    console.log(history.moves)
 
     for (let i in history.moves) {
         const move = history.moves[i]
@@ -22,7 +21,9 @@ export const MovesHistory = () => {
                 >
                     {`${move.white.type} `}
                     {`${move.white.previousPosition.x}-${move.white.previousPosition.y} -> `}
-                    {`${move.white.newPosition.x}-${move.white.newPosition.y} ||| `}
+                    {`${move.white.newPosition.x}-${move.white.newPosition.y}${
+                        move.white.isCheck ? '+' : ''
+                    } ||| `}
                 </span>
                 <span
                     className='
@@ -31,7 +32,9 @@ export const MovesHistory = () => {
                 >
                     {`${move.black.type} `}
                     {`${move.black.previousPosition.x}-${move.black.previousPosition.y} -> `}
-                    {`${move.black.newPosition.x}-${move.black.newPosition.y}`}
+                    {`${move.black.newPosition.x}-${move.black.newPosition.y}${
+                        move.black.isCheck ? '+' : ''
+                    }`}
                 </span>
             </div>
         )
