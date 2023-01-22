@@ -1,5 +1,6 @@
 import { AppDispatch, RootState } from './store'
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PieceMoveEffect } from '../func/chess/chessHelpersTypes'
 
 const initialState: ChessState = {
     pieces: {
@@ -135,6 +136,7 @@ const initialState: ChessState = {
                     y: 8,
                     x: 1,
                 },
+                isOnStartingPosition: true,
             },
             knight1: {
                 type: 'knight',
@@ -163,6 +165,7 @@ const initialState: ChessState = {
                     y: 8,
                     x: 5,
                 },
+                isOnStartingPosition: true,
             },
             bishop2: {
                 type: 'bishop',
@@ -184,6 +187,7 @@ const initialState: ChessState = {
                     y: 8,
                     x: 8,
                 },
+                isOnStartingPosition: true,
             },
             pawn1: {
                 type: 'pawn',
@@ -191,6 +195,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 1,
                 },
+                isOnStartingPosition: true,
             },
             pawn2: {
                 type: 'pawn',
@@ -198,6 +203,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 2,
                 },
+                isOnStartingPosition: true,
             },
             pawn3: {
                 type: 'pawn',
@@ -205,6 +211,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 3,
                 },
+                isOnStartingPosition: true,
             },
             pawn4: {
                 type: 'pawn',
@@ -212,6 +219,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 4,
                 },
+                isOnStartingPosition: true,
             },
             pawn5: {
                 type: 'pawn',
@@ -219,6 +227,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 5,
                 },
+                isOnStartingPosition: true,
             },
             pawn6: {
                 type: 'pawn',
@@ -226,6 +235,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 6,
                 },
+                isOnStartingPosition: true,
             },
             pawn7: {
                 type: 'pawn',
@@ -233,6 +243,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 7,
                 },
+                isOnStartingPosition: true,
             },
             pawn8: {
                 type: 'pawn',
@@ -240,6 +251,7 @@ const initialState: ChessState = {
                     y: 7,
                     x: 8,
                 },
+                isOnStartingPosition: true,
             },
         },
     },
@@ -255,16 +267,35 @@ const chessSlice = createSlice({
     initialState,
     reducers: {
         updatePieces(state, action: PayloadAction<MakeMovePayload>) {
-            const { color, piece, newPosition } = action.payload
+            const { color, piece, newPosition, effect } = action.payload
             const pieceMoving = state.pieces[color][piece]
 
             pieceMoving.square = newPosition
             if (pieceMoving.isOnStartingPosition)
                 pieceMoving.isOnStartingPosition = false
+
+            if (piece === 'king' && effect) {
+                if (effect === 'castlingLeft') {
+                    state.pieces[color].rook1 = {
+                        ...state.pieces[color].rook1,
+                        isOnStartingPosition: false,
+                        square: { x: 4, y: newPosition.y },
+                    }
+                }
+
+                if (effect === 'castlingRight') {
+                    state.pieces[color].rook2 = {
+                        ...state.pieces[color].rook2,
+                        isOnStartingPosition: false,
+                        square: { x: 6, y: newPosition.y },
+                    }
+                }
+            }
             state.isWhiteMove = !state.isWhiteMove //mb to thunk
         },
         updateHistory(state, action: PayloadAction<MakeMovePayload>) {
-            const { color, piece, newPosition, isCheck } = action.payload
+            const { color, piece, newPosition, isCheck, effect } =
+                action.payload
             const { type, square } = state.pieces[color][piece]
 
             // if black move, we got full move, need to update general history
@@ -291,6 +322,7 @@ const chessSlice = createSlice({
                 previousPosition: square as Square,
                 newPosition,
                 isCheck,
+                effect,
             }
         },
     },
@@ -349,7 +381,7 @@ export interface Pieces {
 
 export interface Piece {
     type: PieceType
-    square: Square | null
+    square: Square | null //null if piece is taken
     isTaken?: boolean
     isOnStartingPosition?: boolean // to check if piece can do special move(castling, pawn firsh move)
     wasActiveLastMove?: boolean // exclusively for pawns to check for enPassant
@@ -376,6 +408,7 @@ export interface Move {
     previousPosition: Square
     newPosition: Square
     isCheck: boolean
+    effect?: PieceMoveEffect
 }
 
 export type PieceType = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn'
@@ -389,6 +422,7 @@ export interface MakeMovePayload {
     piece: keyof Pieces
     newPosition: Square
     isCheck: boolean
+    effect?: PieceMoveEffect
     //todo: isTake?
 }
 

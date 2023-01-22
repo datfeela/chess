@@ -1,21 +1,23 @@
-import { Square, SquareNum } from './../../redux/chessSlice'
+import { Pieces, Square, SquareNum } from './../../redux/chessSlice'
 import { checkForCheck } from './checkForCheck'
 import {
+    AreAllSquaresEmptyProps,
     CheckForMovesProps,
-    checkMoveProps,
+    CheckMoveProps,
+    CheckSquaresAdditionalDirectionProps,
     CheckSquaresOneDirProps,
     CheckSquaresProps,
+    IsCastlingNotInterruptedProps,
     MoveDirectionNum,
     PiecesState,
     PossibleSquare,
     PossibleSquareWithCheckmate,
 } from './chessHelpersTypes'
 
-// !isWithCheckmateCheck should be true only when called from Board.tsx, or from Board's effects, when activating a piece or checking for check/stale-mate
-// !with this setting enabled moves will be calculated recursively with check/checkmate/stalemate check
 export function checkForPieceMoves({
-    isWithCheckmateCheck = true,
-    isWithSelfCheckmateCheck = true,
+    isWithCheckmateCheck, //should be true only when called from Board.tsx, or from Board's effects, moves will be calculated recursively with check/checkmate/stalemate check when enabled
+    isWithSelfCheckmateCheck,
+    isWithAdditionalMovesCheck,
     type,
     name,
     piecesState,
@@ -23,14 +25,25 @@ export function checkForPieceMoves({
     color,
     blackPiecesPositions,
     whitePiecesPositions,
+    isOnStartingPosition,
+    lastMove,
+    rooksState,
 }: CheckForMovesProps) {
     let possibleMoves = [] as PossibleSquare[]
+    let piecesCanBeTakenCoords = [] as Square[]
+
+    //if piece is taken, it has no moves
+    if (currentSquare === null) return { possibleMoves, piecesCanBeTakenCoords }
 
     const checkSquaresSharedProps = {
         color,
+        type,
         currentSquare,
         blackPiecesPositions,
         whitePiecesPositions,
+        isOnStartingPosition,
+        isWithAdditionalMovesCheck,
+        lastMove,
     }
 
     // call checkSquares based on piece type
@@ -46,7 +59,6 @@ export function checkForPieceMoves({
                     'pawnChange',
                 ],
             })
-            // pawnEnPassant?
             break
         }
         case 'rook': {
@@ -86,12 +98,15 @@ export function checkForPieceMoves({
                 range: 1,
                 ...checkSquaresSharedProps,
                 defaultDirections: ['diagonally', 'straight'],
+                additionalDirections: ['castling'],
+                rooksState,
+                enemyPiecesState:
+                    piecesState?.[color === 'white' ? 'black' : 'white'],
             })
             break
         }
     }
 
-    let piecesCanBeTakenCoords = [] as Square[]
     // got all moves piece can make, need to filter wrong moves and find out if move is a check
     // if !isWithCheckmateCheck - it's already being checked recursively for next move
     if (isWithCheckmateCheck || isWithSelfCheckmateCheck) {
@@ -130,11 +145,17 @@ function selectPiecesCanBeTakenCoords(
 function checkSquares({
     currentSquare,
     color,
+    type,
     whitePiecesPositions,
     blackPiecesPositions,
     range,
     defaultDirections,
     additionalDirections,
+    isOnStartingPosition,
+    isWithAdditionalMovesCheck,
+    lastMove,
+    rooksState,
+    enemyPiecesState,
 }: CheckSquaresProps) {
     const possibleSquares = [] as Array<PossibleSquare>
     const defaultDirectionsNum = [] as Array<{
@@ -209,12 +230,201 @@ function checkSquares({
             possibleSquares.push(...squaresTemp)
         })
 
-    additionalDirections &&
-        additionalDirections.forEach((direction) => {
-            //todo: need to add additional directions logic
+    if (additionalDirections && isWithAdditionalMovesCheck) {
+        const squaresTemp = checkSquaresAdditionalDirection({
+            currentSquare,
+            color,
+            additionalDirections,
+            blackPiecesPositions,
+            whitePiecesPositions,
+            isOnStartingPosition,
+            lastMove,
+            rooksState,
+            enemyPiecesState,
         })
 
+        // if piece is pawn, need to replace default directions moves with additional directions moves
+        if (type === 'pawn')
+            additionalMovesLoop: for (
+                let squareTempIndex = 0;
+                squareTempIndex < squaresTemp.length;
+                squareTempIndex++
+            ) {
+                let squareAdditional = squaresTemp[squareTempIndex]
+                for (let i = 0; i < possibleSquares.length; i++) {
+                    if (
+                        squareAdditional.x === possibleSquares[i].x &&
+                        squareAdditional.y === possibleSquares[i].y
+                    ) {
+                        possibleSquares.splice(i, 1)
+                        possibleSquares.push(squareAdditional)
+                        continue additionalMovesLoop
+                    }
+                }
+                possibleSquares.push(squareAdditional)
+            }
+        else possibleSquares.push(...squaresTemp)
+    }
+
     return possibleSquares
+}
+
+function checkSquaresAdditionalDirection({
+    currentSquare,
+    color,
+    additionalDirections,
+    blackPiecesPositions,
+    whitePiecesPositions,
+    isOnStartingPosition,
+    lastMove,
+    rooksState,
+    enemyPiecesState,
+}: CheckSquaresAdditionalDirectionProps) {
+    const possibleSquares = [] as Array<PossibleSquare>
+    additionalDirections.forEach((direction) => {
+        switch (direction) {
+            case 'pawnFirstMove':
+                // !!!! should overwrite default move
+                if (isOnStartingPosition) {
+                    let squaresTemp = checkSquaresOneDir({
+                        currentSquare,
+                        color,
+                        range: 2,
+                        moveX: 0,
+                        moveY: color === 'white' ? 1 : -1,
+                        blackPiecesPositions,
+                        whitePiecesPositions,
+                    })
+                    possibleSquares.push(...squaresTemp)
+                }
+                break
+            case 'castling':
+                if (
+                    !enemyPiecesState ||
+                    !isOnStartingPosition ||
+                    lastMove?.isCheck ||
+                    (!rooksState?.isRook1OnStartingPosition &&
+                        !rooksState?.isRook2OnStartingPosition)
+                )
+                    break
+
+                let isLeftCastlingPossible =
+                    rooksState?.isRook1OnStartingPosition
+                let isRightCastlingPossible =
+                    rooksState?.isRook2OnStartingPosition
+
+                // check if there are any pieces between king and rooks
+                const allPiecesPositions = [
+                    ...blackPiecesPositions,
+                    ...whitePiecesPositions,
+                ]
+                if (
+                    isLeftCastlingPossible &&
+                    areAllSquaresEmpty({
+                        piecesPositions: allPiecesPositions,
+                        squares: [
+                            { x: 2, y: currentSquare.y },
+                            { x: 3, y: currentSquare.y },
+                            { x: 4, y: currentSquare.y },
+                        ],
+                    }) === false
+                )
+                    isLeftCastlingPossible = false
+
+                if (
+                    isRightCastlingPossible &&
+                    areAllSquaresEmpty({
+                        piecesPositions: allPiecesPositions,
+                        squares: [
+                            { x: 6, y: currentSquare.y },
+                            { x: 7, y: currentSquare.y },
+                        ],
+                    }) === false
+                )
+                    isRightCastlingPossible = false
+
+                // check if any square between king and rooks is attacked by opposing piece
+                // for (let name in enemyPiecesState) {
+                //     if (!isLeftCastlingPossible && !isRightCastlingPossible)
+                //         break
+
+                //     const possibleEnemyMoves = checkForPieceMoves({
+                //         isWithCheckmateCheck: false,
+                //         isWithSelfCheckmateCheck: false,
+                //         isWithAdditionalMovesCheck: false,
+                //         blackPiecesPositions,
+                //         whitePiecesPositions,
+                //         color: color === 'white' ? 'black' : 'white',
+                //         currentSquare: enemyPiecesState[name as keyof Pieces]
+                //             .square as Square,
+                //         name: name as keyof Pieces,
+                //         type: enemyPiecesState[name as keyof Pieces].type,
+                //     }).possibleMoves
+
+                //     for (let i = 0; i < possibleEnemyMoves.length; i++) {
+                //         if (possibleEnemyMoves[i].y !== currentSquare.y)
+                //             continue
+                //         if (
+                //             isLeftCastlingPossible &&
+                //             (possibleEnemyMoves[i].x === 2 ||
+                //                 possibleEnemyMoves[i].x === 3 ||
+                //                 possibleEnemyMoves[i].x === 4)
+                //         )
+                //             isLeftCastlingPossible = false
+                //         if (
+                //             isRightCastlingPossible &&
+                //             (possibleEnemyMoves[i].x === 6 ||
+                //                 possibleEnemyMoves[i].x === 7)
+                //         )
+                //             isRightCastlingPossible = false
+                //     }
+                // }
+                const isCastlingNotInterruptedResult = isCastlingNotInterrupted(
+                    {
+                        blackPiecesPositions,
+                        color,
+                        currentSquare,
+                        enemyPiecesState,
+                        isLeftCastlingPossible,
+                        isRightCastlingPossible,
+                        whitePiecesPositions,
+                    }
+                )
+
+                isLeftCastlingPossible = isCastlingNotInterruptedResult.left
+                isRightCastlingPossible = isCastlingNotInterruptedResult.right
+
+                isLeftCastlingPossible &&
+                    possibleSquares.push({
+                        x: 3,
+                        y: currentSquare.y,
+                        isEnemyPieceOnSquare: false,
+                        effect: 'castlingLeft',
+                    })
+                isRightCastlingPossible &&
+                    possibleSquares.push({
+                        x: 7,
+                        y: currentSquare.y,
+                        isEnemyPieceOnSquare: false,
+                        effect: 'castlingRight',
+                    })
+
+                break
+            // case 'pawnChange'
+            // case 'pawnEnPassant':
+            default:
+                break
+        }
+    })
+
+    return possibleSquares
+
+    // const { isMovePossible, isEnemyPieceOnSquare } = checkMove({
+    //     square: squareForCheck,
+    //     color,
+    //     whitePiecesPositions,
+    //     blackPiecesPositions,
+    // })
 }
 
 // is move in certain direction is possible
@@ -274,10 +484,9 @@ function checkSquaresOneDir({
 }
 
 // is move on certain square is possible
-function checkMove(props: checkMoveProps) {
-    const { square, color, whitePiecesPositions, blackPiecesPositions } = {
-        ...props,
-    }
+function checkMove(props: CheckMoveProps) {
+    const { square, color, whitePiecesPositions, blackPiecesPositions } = props
+
     const checkResult = {
         isMovePossible: false,
         isEnemyPieceOnSquare: false,
@@ -314,4 +523,69 @@ function checkMove(props: checkMoveProps) {
     }
     checkResult.isMovePossible = true
     return checkResult
+}
+
+function areAllSquaresEmpty({
+    piecesPositions,
+    squares,
+}: AreAllSquaresEmptyProps) {
+    for (let squareIndex = 0; squareIndex < squares.length; squareIndex++) {
+        let squareToCheck = squares[squareIndex]
+        for (let i = 0; i < piecesPositions.length; i++) {
+            if (
+                piecesPositions[i].x === squareToCheck.x &&
+                piecesPositions[i].y === squareToCheck.y
+            )
+                return false
+        }
+    }
+    return true
+}
+
+function isCastlingNotInterrupted({
+    enemyPiecesState,
+    isLeftCastlingPossible,
+    isRightCastlingPossible,
+    blackPiecesPositions,
+    whitePiecesPositions,
+    color,
+    currentSquare,
+}: IsCastlingNotInterruptedProps) {
+    const isCastlingPossibleTemp = {
+        left: isLeftCastlingPossible,
+        right: isRightCastlingPossible,
+    }
+    for (let name in enemyPiecesState) {
+        if (!isCastlingPossibleTemp.left && !isCastlingPossibleTemp.right) break
+
+        const possibleEnemyMoves = checkForPieceMoves({
+            isWithCheckmateCheck: false,
+            isWithSelfCheckmateCheck: false,
+            isWithAdditionalMovesCheck: false,
+            blackPiecesPositions,
+            whitePiecesPositions,
+            color: color === 'white' ? 'black' : 'white',
+            currentSquare: enemyPiecesState[name as keyof Pieces]
+                .square as Square,
+            name: name as keyof Pieces,
+            type: enemyPiecesState[name as keyof Pieces].type,
+        }).possibleMoves
+
+        for (let i = 0; i < possibleEnemyMoves.length; i++) {
+            if (possibleEnemyMoves[i].y !== currentSquare.y) continue
+            if (
+                isCastlingPossibleTemp.left &&
+                (possibleEnemyMoves[i].x === 2 ||
+                    possibleEnemyMoves[i].x === 3 ||
+                    possibleEnemyMoves[i].x === 4)
+            )
+                isCastlingPossibleTemp.left = false
+            if (
+                isCastlingPossibleTemp.right &&
+                (possibleEnemyMoves[i].x === 6 || possibleEnemyMoves[i].x === 7)
+            )
+                isCastlingPossibleTemp.right = false
+        }
+    }
+    return isCastlingPossibleTemp
 }

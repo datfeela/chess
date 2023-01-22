@@ -82,6 +82,7 @@ export const Pieces = ({
                     handlePieceClick={handlePieceClick}
                     isPieceActive={isPieceActive}
                     isPieceCanBeTaken={isPieceCanBeTaken}
+                    isOnStartingPosition={pieceProps.isOnStartingPosition}
                 />
             )
         }

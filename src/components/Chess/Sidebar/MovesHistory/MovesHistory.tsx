@@ -1,11 +1,16 @@
 import { useAppSelector } from '../../../../hooks/redux'
-import { selectMovesHistory } from '../../../../redux/chessSelectors'
+import {
+    selectLastMove,
+    selectMovesHistory,
+} from '../../../../redux/chessSelectors'
 import { RootState } from '../../../../redux/store'
 
 export const MovesHistory = () => {
     const history = useAppSelector((state: RootState) =>
         selectMovesHistory(state)
     )
+
+    const lastMove = useAppSelector((state: RootState) => selectLastMove(state))
 
     const historyElements: JSX.Element[] = []
 

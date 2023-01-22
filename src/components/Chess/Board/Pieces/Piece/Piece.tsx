@@ -15,6 +15,7 @@ export const Piece = ({
     color,
     isPieceCanBeTaken,
     isPieceActive,
+    isOnStartingPosition,
     handlePieceClick,
 }: PieceProps) => {
     // console.log('piece render')
@@ -28,6 +29,7 @@ export const Piece = ({
             type,
             color,
             name,
+            isOnStartingPosition,
         })
     }
 
@@ -93,6 +95,7 @@ interface PieceProps {
     type: PieceType
     square: Square | null
     color: PieceColor
+    isOnStartingPosition?: boolean
     isPieceCanBeTaken: boolean
     isPieceActive: boolean
     handlePieceClick: ({ name, color }: handlePieceClickProps) => void

@@ -97,6 +97,9 @@ function canEnemyTakeKing({
             currentSquare: enemyPieces[name as keyof Pieces].square as Square,
             whitePiecesPositions,
             blackPiecesPositions,
+            isOnStartingPosition:
+                enemyPieces[name as keyof Pieces].isOnStartingPosition,
+            isWithAdditionalMovesCheck: false,
             isWithCheckmateCheck: false,
             isWithSelfCheckmateCheck: false,
         })

@@ -1,5 +1,9 @@
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux'
-import { Square, makeMove as makeMoveDispatch } from '../../../redux/chessSlice'
+import {
+    Square,
+    makeMove as makeMoveDispatch,
+    PieceColor,
+} from '../../../redux/chessSlice'
 import { checkForPieceMoves } from '../../../func/chess/checkForMoves'
 import usePiecesPositions from '../../../hooks/chess/usePiecesPositions'
 import React, { useState, useEffect } from 'react'
@@ -34,7 +38,15 @@ export const Board = React.memo(() => {
     const isWhiteMove = useAppSelector((state: RootState) =>
         selectIsWhiteMove(state)
     )
+
     const lastMove = useAppSelector((state: RootState) => selectLastMove(state))
+    const lastMoveForCheck = {
+        color: isWhiteMove ? 'black' : ('white' as PieceColor),
+        isCheck: lastMove.isCheck,
+        previousPosition: lastMove.newPosition,
+        newPosition: lastMove.newPosition,
+        type: lastMove.type,
+    }
 
     // check for checkmate/stalemate
     useEffect(() => {
@@ -47,6 +59,7 @@ export const Board = React.memo(() => {
             colorToCheck,
             piecesToCheck,
             piecesState,
+            lastMove: lastMoveForCheck,
         })
 
         if (isActivePlayerMovePossible) return
@@ -59,8 +72,15 @@ export const Board = React.memo(() => {
         type,
         color,
         name,
+        isOnStartingPosition,
     }: handlePieceClickProps) {
-        setActivePiece({ name, type, color, currentSquare })
+        setActivePiece({
+            name,
+            type,
+            color,
+            currentSquare,
+            isOnStartingPosition,
+        })
         const { possibleMoves, piecesCanBeTakenCoords } = checkForPieceMoves({
             currentSquare,
             type,
@@ -69,8 +89,20 @@ export const Board = React.memo(() => {
             blackPiecesPositions,
             whitePiecesPositions,
             piecesState,
+            isOnStartingPosition,
+            lastMove: lastMoveForCheck,
             isWithCheckmateCheck: true,
             isWithSelfCheckmateCheck: true,
+            isWithAdditionalMovesCheck: true,
+            rooksState:
+                type === 'king'
+                    ? {
+                          isRook1OnStartingPosition: piecesState[color].rook1
+                              .isOnStartingPosition as boolean,
+                          isRook2OnStartingPosition: piecesState[color].rook2
+                              .isOnStartingPosition as boolean,
+                      }
+                    : undefined,
         }) as {
             //when checkForPieceMoves is called without "isWithCheckmateCheck = false", it will always return this type
             possibleMoves: PossibleSquareWithCheckmate[]
@@ -90,6 +122,7 @@ export const Board = React.memo(() => {
         activePiece,
         squareCoords,
         isCheck,
+        effect,
     }: MakeMoveProps) => {
         dispatch(
             makeMoveDispatch({
@@ -97,6 +130,7 @@ export const Board = React.memo(() => {
                 piece: activePiece.name,
                 newPosition: squareCoords,
                 isCheck,
+                effect,
             })
         )
         setActivePiece(null)

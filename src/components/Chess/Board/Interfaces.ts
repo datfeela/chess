@@ -1,3 +1,4 @@
+import { PieceMoveEffect } from '../../../func/chess/chessHelpersTypes'
 import {
     PieceColor,
     Pieces,
@@ -8,6 +9,7 @@ import {
 interface ActiveSquare extends Square {
     isEnemyPieceOnSquare: boolean
     isCheck: boolean
+    effect?: PieceMoveEffect
 }
 
 export type ActiveSquares = null | ActiveSquare[]
@@ -17,6 +19,7 @@ export interface ActivePiece {
     type: PieceType
     color: PieceColor
     currentSquare: Square
+    isOnStartingPosition?: boolean
 }
 
 export type ActivePieceNullable = ActivePiece | null
@@ -27,6 +30,7 @@ export interface MakeMoveProps {
     activePiece: ActivePiece
     squareCoords: Square
     isCheck: boolean
+    effect?: PieceMoveEffect
 }
 
 export interface handlePieceClickProps {
@@ -34,4 +38,5 @@ export interface handlePieceClickProps {
     currentSquare: Square
     type: PieceType
     color: PieceColor
+    isOnStartingPosition?: boolean
 }

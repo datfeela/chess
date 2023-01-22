@@ -1,4 +1,4 @@
-import { PiecesState } from './chessHelpersTypes'
+import { LastMove, PiecesState } from './chessHelpersTypes'
 import { PieceColor, Pieces, Square } from '../../redux/chessSlice'
 import { checkForPieceMoves } from './checkForMoves'
 
@@ -8,6 +8,7 @@ export function checkForStalemate({
     whitePiecesPositions,
     blackPiecesPositions,
     piecesState,
+    lastMove,
 }: CheckForStalemateProps) {
     let isAnyMovePossible = false
 
@@ -22,6 +23,10 @@ export function checkForStalemate({
             piecesState,
             isWithCheckmateCheck: false,
             isWithSelfCheckmateCheck: true,
+            isWithAdditionalMovesCheck: true,
+            isOnStartingPosition:
+                piecesToCheck[name as keyof Pieces].isOnStartingPosition,
+            lastMove,
         })
 
         if (possiblePieceMoves.possibleMoves.length > 0) {
@@ -39,4 +44,5 @@ interface CheckForStalemateProps {
     blackPiecesPositions: Square[]
     whitePiecesPositions: Square[]
     piecesState: PiecesState
+    lastMove: LastMove
 }

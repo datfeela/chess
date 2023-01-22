@@ -29,7 +29,12 @@ export default function Squares({
         for (let square of activeSquares) {
             if (square.x === squareCoords.x && square.y === squareCoords.y)
                 //! makeMove({ activePiece, squareCoords })
-                makeMove({ activePiece, squareCoords, isCheck: square.isCheck })
+                makeMove({
+                    activePiece,
+                    squareCoords,
+                    isCheck: square.isCheck,
+                    effect: square.effect,
+                })
         }
     }
 

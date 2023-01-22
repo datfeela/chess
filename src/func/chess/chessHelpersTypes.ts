@@ -9,7 +9,11 @@ export interface CheckForMovesProps {
     blackPiecesPositions: Array<Square>
     isWithCheckmateCheck: boolean
     isWithSelfCheckmateCheck: boolean
+    isWithAdditionalMovesCheck: boolean
     piecesState?: PiecesState
+    isOnStartingPosition?: boolean
+    lastMove?: LastMove
+    rooksState?: AreRooksOnStartingPositions
 }
 
 export interface CheckForCheckProps {
@@ -36,11 +40,30 @@ export interface PiecesState {
 export interface CheckSquaresProps {
     currentSquare: Square
     color: PieceColor
+    type: PieceType
     whitePiecesPositions: Array<Square>
     blackPiecesPositions: Array<Square>
     range?: 1 | 7
+    isWithAdditionalMovesCheck: boolean
     defaultDirections?: Array<DefaultMoveDirection>
     additionalDirections?: Array<AdditionalMoveDirection>
+    isOnStartingPosition?: boolean
+    lastMove?: LastMove
+    rooksState?: AreRooksOnStartingPositions
+    enemyPiecesState?: Pieces
+}
+
+export interface CheckSquaresAdditionalDirectionProps {
+    additionalDirections: AdditionalMoveDirection[]
+    currentSquare: Square
+    color: PieceColor
+    blackPiecesPositions: Square[]
+    whitePiecesPositions: Square[]
+    isOnStartingPosition?: boolean
+    lastMove: LastMove | undefined
+    // only for king additionalMoves check
+    rooksState?: AreRooksOnStartingPositions
+    enemyPiecesState?: Pieces
 }
 
 export interface CheckSquaresOneDirProps {
@@ -54,24 +77,36 @@ export interface CheckSquaresOneDirProps {
     canOnlyTake?: boolean
 }
 
-export interface checkMoveProps {
+export interface CheckMoveProps {
     square: Square
     color: PieceColor
     whitePiecesPositions: Array<Square>
     blackPiecesPositions: Array<Square>
 }
 
+export interface AreAllSquaresEmptyProps {
+    piecesPositions: Square[]
+    squares: Square[]
+}
+
+export interface IsCastlingNotInterruptedProps {
+    enemyPiecesState: Pieces
+    isLeftCastlingPossible: boolean
+    isRightCastlingPossible: boolean
+    blackPiecesPositions: Square[]
+    whitePiecesPositions: Square[]
+    color: PieceColor
+    currentSquare: Square
+}
+
 export interface PossibleSquare extends Square {
     isEnemyPieceOnSquare: boolean
+    effect?: PieceMoveEffect
 }
 
 export interface PossibleSquareWithCheckmate extends PossibleSquare {
     isCheck: boolean
-    // isCheckmate: boolean
-    // isStalemate: boolean
 }
-
-// export interface CheckForDiagonalMovesProps extends CheckForMoveProps {}
 
 export type DefaultMoveDirection =
     | 'straight'
@@ -84,5 +119,26 @@ export type AdditionalMoveDirection =
     | 'pawnChange'
     | 'castling'
 
+export type PieceMoveEffect =
+    | 'pawnEnPassant'
+    | 'pawnChange'
+    | 'castlingLeft'
+    | 'castlingRight'
+
 export type MoveDirectionNum = 0 | 1 | -1 | -2 | 2
 // direction on X and Y axes normally, -2 | 2 for knight, because his move is direct 2/1
+
+// additional moves
+
+export interface LastMove {
+    type: PieceType
+    color: PieceColor
+    isCheck: boolean
+    previousPosition: Square
+    newPosition: Square
+}
+
+export interface AreRooksOnStartingPositions {
+    isRook1OnStartingPosition: boolean
+    isRook2OnStartingPosition: boolean
+}
