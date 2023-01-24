@@ -19,14 +19,19 @@ import {
 } from '../../../redux/chessSelectors'
 import { PossibleSquareWithCheckmate } from '../../../func/chess/chessHelpersTypes'
 import { checkForStalemate } from '../../../func/chess/checkForStalemate'
+import { Popup } from './Popup/Popup'
 
 export const Board = React.memo(() => {
     // console.log('board render')
 
     // state
-    // active squares are linked to active piece: squares on which piece can move
-    const [activeSquares, setActiveSquares] = useState(null as ActiveSquares)
+    const [isCheckmate, setIsCheckmate] = useState(false)
+    const [isStalemate, setIsStalemate] = useState(false)
+    // active squares are linked to currently active piece: squares on which this piece can move
     const [activePiece, setActivePiece] = useState(null as ActivePieceNullable)
+    const [activeSquares, setActiveSquares] = useState(null as ActiveSquares)
+    console.log(activeSquares)
+
     const [piecesCanBeTakenPositions, setPiecesCanBeTakenPositions] = useState(
         [] as Square[]
     )
@@ -40,10 +45,11 @@ export const Board = React.memo(() => {
     )
 
     const lastMove = useAppSelector((state: RootState) => selectLastMove(state))
+
     const lastMoveForCheck = {
-        color: isWhiteMove ? 'black' : ('white' as PieceColor),
+        color: isWhiteMove ? ('black' as PieceColor) : ('white' as PieceColor),
         isCheck: lastMove.isCheck,
-        previousPosition: lastMove.newPosition,
+        previousPosition: lastMove.previousPosition,
         newPosition: lastMove.newPosition,
         type: lastMove.type,
     }
@@ -63,8 +69,8 @@ export const Board = React.memo(() => {
         })
 
         if (isActivePlayerMovePossible) return
-        if (lastMove.isCheck === true) console.log('checkmate')
-        else console.log('stalemate')
+        if (lastMove.isCheck === true) setIsCheckmate(true)
+        else setIsStalemate(true)
     }, [lastMove])
 
     function activatePiece({
@@ -74,6 +80,7 @@ export const Board = React.memo(() => {
         name,
         isOnStartingPosition,
     }: handlePieceClickProps) {
+        if (isCheckmate || isStalemate) return
         setActivePiece({
             name,
             type,
@@ -124,6 +131,7 @@ export const Board = React.memo(() => {
         isCheck,
         effect,
     }: MakeMoveProps) => {
+        if (isCheckmate || isStalemate) return
         dispatch(
             makeMoveDispatch({
                 color: activePiece.color,
@@ -156,6 +164,12 @@ export const Board = React.memo(() => {
                 activatePiece={activatePiece}
                 activeSquares={activeSquares}
                 piecesCanBeTakenPositions={piecesCanBeTakenPositions}
+            />
+            <Popup
+                color={isWhiteMove ? 'black' : 'white'}
+                lastMove={lastMove}
+                isCheckmate={isCheckmate}
+                isStalemate={isStalemate}
             />
         </div>
     )

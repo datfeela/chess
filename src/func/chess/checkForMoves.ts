@@ -9,6 +9,7 @@ import {
     CheckSquaresProps,
     IsCastlingNotInterruptedProps,
     MoveDirectionNum,
+    PieceMoveEffect,
     PiecesState,
     PossibleSquare,
     PossibleSquareWithCheckmate,
@@ -344,41 +345,6 @@ function checkSquaresAdditionalDirection({
                     isRightCastlingPossible = false
 
                 // check if any square between king and rooks is attacked by opposing piece
-                // for (let name in enemyPiecesState) {
-                //     if (!isLeftCastlingPossible && !isRightCastlingPossible)
-                //         break
-
-                //     const possibleEnemyMoves = checkForPieceMoves({
-                //         isWithCheckmateCheck: false,
-                //         isWithSelfCheckmateCheck: false,
-                //         isWithAdditionalMovesCheck: false,
-                //         blackPiecesPositions,
-                //         whitePiecesPositions,
-                //         color: color === 'white' ? 'black' : 'white',
-                //         currentSquare: enemyPiecesState[name as keyof Pieces]
-                //             .square as Square,
-                //         name: name as keyof Pieces,
-                //         type: enemyPiecesState[name as keyof Pieces].type,
-                //     }).possibleMoves
-
-                //     for (let i = 0; i < possibleEnemyMoves.length; i++) {
-                //         if (possibleEnemyMoves[i].y !== currentSquare.y)
-                //             continue
-                //         if (
-                //             isLeftCastlingPossible &&
-                //             (possibleEnemyMoves[i].x === 2 ||
-                //                 possibleEnemyMoves[i].x === 3 ||
-                //                 possibleEnemyMoves[i].x === 4)
-                //         )
-                //             isLeftCastlingPossible = false
-                //         if (
-                //             isRightCastlingPossible &&
-                //             (possibleEnemyMoves[i].x === 6 ||
-                //                 possibleEnemyMoves[i].x === 7)
-                //         )
-                //             isRightCastlingPossible = false
-                //     }
-                // }
                 const isCastlingNotInterruptedResult = isCastlingNotInterrupted(
                     {
                         blackPiecesPositions,
@@ -410,8 +376,69 @@ function checkSquaresAdditionalDirection({
                     })
 
                 break
-            // case 'pawnChange'
-            // case 'pawnEnPassant':
+            case 'pawnChange': {
+                let possibleMove
+                const possibleSquare = {
+                    x: currentSquare.x,
+                    y: (currentSquare.y +
+                        (color === 'white' ? 1 : -1)) as SquareNum,
+                }
+
+                if (
+                    (color === 'white' && currentSquare.y === 7) ||
+                    (color === 'black' && currentSquare.y === 2)
+                )
+                    possibleMove = checkMove({
+                        blackPiecesPositions,
+                        whitePiecesPositions,
+                        color,
+                        square: possibleSquare,
+                    })
+
+                if (
+                    possibleMove?.isMovePossible &&
+                    !possibleMove?.isEnemyPieceOnSquare
+                )
+                    possibleSquares.push({
+                        ...possibleSquare,
+                        isEnemyPieceOnSquare: false,
+                        effect: 'pawnChange',
+                    })
+                break
+            }
+            case 'pawnEnPassant': {
+                // is pawn in correct position?
+                if (
+                    !(color === 'white' && currentSquare.y === 4) &&
+                    !(color === 'black' && currentSquare.y === 5)
+                )
+                    break
+                // was last move was pawnFirstMove on adjacent square?
+                if (
+                    lastMove?.type !== 'pawn' ||
+                    Math.abs(
+                        lastMove.newPosition.y - lastMove.previousPosition.y
+                    ) !== 2 ||
+                    Math.abs(lastMove.newPosition.x - currentSquare.x) !== 1
+                )
+                    break
+                let squaresTemp = checkSquaresOneDir({
+                    currentSquare,
+                    color,
+                    range: 1,
+                    moveX: 0,
+                    moveY: color === 'white' ? 1 : -1,
+                    blackPiecesPositions,
+                    whitePiecesPositions,
+                })
+
+                if (squaresTemp[0])
+                    possibleSquares.push({
+                        ...squaresTemp[0],
+                        effect: 'pawnEnPassant' as PieceMoveEffect,
+                    })
+                break
+            }
             default:
                 break
         }
@@ -532,6 +559,7 @@ function areAllSquaresEmpty({
     for (let squareIndex = 0; squareIndex < squares.length; squareIndex++) {
         let squareToCheck = squares[squareIndex]
         for (let i = 0; i < piecesPositions.length; i++) {
+            if (piecesPositions[i] === null) return
             if (
                 piecesPositions[i].x === squareToCheck.x &&
                 piecesPositions[i].y === squareToCheck.y

@@ -191,10 +191,11 @@ const initialState: ChessState = {
             },
             pawn1: {
                 type: 'pawn',
-                square: {
-                    y: 7,
-                    x: 1,
-                },
+                // square: {
+                //     y: 7,
+                //     x: 1,
+                // },
+                square: null,
                 isOnStartingPosition: true,
             },
             pawn2: {
@@ -360,23 +361,8 @@ export interface ChessState {
     lastMove: Move
 }
 
-export interface Pieces {
-    rook1: Piece
-    knight1: Piece
-    bishop1: Piece
-    queen: Piece
-    king: Piece
-    bishop2: Piece
-    knight2: Piece
-    rook2: Piece
-    pawn1: Piece
-    pawn2: Piece
-    pawn3: Piece
-    pawn4: Piece
-    pawn5: Piece
-    pawn6: Piece
-    pawn7: Piece
-    pawn8: Piece
+export type Pieces = {
+    [key in PieceName]: Piece
 }
 
 export interface Piece {
@@ -411,6 +397,23 @@ export interface Move {
     effect?: PieceMoveEffect
 }
 
+export type PieceName =
+    | 'rook1'
+    | 'knight1'
+    | 'bishop1'
+    | 'queen'
+    | 'king'
+    | 'bishop2'
+    | 'knight2'
+    | 'rook2'
+    | 'pawn1'
+    | 'pawn2'
+    | 'pawn3'
+    | 'pawn4'
+    | 'pawn5'
+    | 'pawn6'
+    | 'pawn7'
+    | 'pawn8'
 export type PieceType = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn'
 export type SquareNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export type PieceColor = 'white' | 'black'
