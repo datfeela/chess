@@ -1,5 +1,5 @@
 import { selectPieces } from '../../redux/chessSelectors'
-import { Pieces, Square } from '../../redux/chessSlice'
+import { PieceName, Pieces, Square } from '../../redux/chessSlice'
 import { RootState } from '../../redux/store'
 import { useAppSelector } from '../redux'
 
@@ -16,13 +16,19 @@ export function selectPiecesPositions(pieces: {
     const whitePiecesPositions: Array<Square> = []
     const blackPiecesPositions: Array<Square> = []
 
-    // refactor to for..in
-    Object.entries(pieces.white).forEach((piece) => {
-        whitePiecesPositions.push(piece[1].square)
-    })
-    Object.entries(pieces.black).forEach((piece) => {
-        blackPiecesPositions.push(piece[1].square)
-    })
+    for (let name in pieces.white) {
+        if (pieces.white[name as PieceName].square === null) continue
+        whitePiecesPositions.push(
+            pieces.white[name as PieceName].square as Square
+        )
+    }
+
+    for (let name in pieces.black) {
+        if (pieces.black[name as PieceName].square === null) continue
+        blackPiecesPositions.push(
+            pieces.black[name as PieceName].square as Square
+        )
+    }
 
     return {
         whitePiecesPositions: whitePiecesPositions,
