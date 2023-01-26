@@ -22,6 +22,20 @@ export function checkForCheck({
         const piecesStateAfterMove: PiecesState = JSON.parse(
             JSON.stringify(piecesState)
         )
+        if (possibleMove.isEnemyPieceOnSquare) {
+            let enemyPieces =
+                piecesStateAfterMove[
+                    activePieceColor === 'white' ? 'black' : 'white'
+                ]
+            for (let name in enemyPieces) {
+                const enemyPiece = enemyPieces[name as keyof Pieces]
+                if (
+                    enemyPiece.square?.x === possibleMove.x &&
+                    enemyPiece.square?.y === possibleMove.y
+                )
+                    delete enemyPieces[name as keyof Pieces]
+            }
+        }
         piecesStateAfterMove[activePieceColor][activePieceName].square = {
             x: possibleMove.x,
             y: possibleMove.y,

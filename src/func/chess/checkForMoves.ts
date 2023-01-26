@@ -163,6 +163,7 @@ function checkSquares({
         x: MoveDirectionNum
         y: MoveDirectionNum
         canOnlyTake?: boolean
+        canOnlyMove?: boolean
     }>
 
     defaultDirections &&
@@ -172,16 +173,24 @@ function checkSquares({
                     if (color === 'white') {
                         defaultDirectionsNum.push(
                             { x: 1, y: 1, canOnlyTake: true },
-                            { x: -1, y: 1, canOnlyTake: true }
+                            { x: -1, y: 1, canOnlyTake: true },
+                            {
+                                x: 0,
+                                y: 1,
+                                canOnlyMove: true,
+                            }
                         )
-                        defaultDirectionsNum.push({ x: 0, y: 1 })
                     }
                     if (color === 'black') {
                         defaultDirectionsNum.push(
                             { x: 1, y: -1, canOnlyTake: true },
-                            { x: -1, y: -1, canOnlyTake: true }
+                            { x: -1, y: -1, canOnlyTake: true },
+                            {
+                                x: 0,
+                                y: -1,
+                                canOnlyMove: true,
+                            }
                         )
-                        defaultDirectionsNum.push({ x: 0, y: -1 })
                     }
                     break
                 case 'knightMove': {
@@ -227,6 +236,7 @@ function checkSquares({
                 blackPiecesPositions,
                 whitePiecesPositions,
                 canOnlyTake: direction.canOnlyTake,
+                canOnlyMove: direction.canOnlyMove,
             })
             possibleSquares.push(...squaresTemp)
         })
@@ -295,6 +305,7 @@ function checkSquaresAdditionalDirection({
                         moveY: color === 'white' ? 1 : -1,
                         blackPiecesPositions,
                         whitePiecesPositions,
+                        canOnlyMove: true,
                     })
                     possibleSquares.push(...squaresTemp)
                 }
@@ -409,8 +420,8 @@ function checkSquaresAdditionalDirection({
             case 'pawnEnPassant': {
                 // is pawn in correct position?
                 if (
-                    !(color === 'white' && currentSquare.y === 4) &&
-                    !(color === 'black' && currentSquare.y === 5)
+                    !(color === 'white' && currentSquare.y === 5) &&
+                    !(color === 'black' && currentSquare.y === 4)
                 )
                     break
                 // was last move was pawnFirstMove on adjacent square?
@@ -422,17 +433,19 @@ function checkSquaresAdditionalDirection({
                     Math.abs(lastMove.newPosition.x - currentSquare.x) !== 1
                 )
                     break
+
                 let squaresTemp = checkSquaresOneDir({
                     currentSquare,
                     color,
                     range: 1,
-                    moveX: 0,
+                    moveX: (lastMove.newPosition.x -
+                        currentSquare.x) as MoveDirectionNum,
                     moveY: color === 'white' ? 1 : -1,
                     blackPiecesPositions,
                     whitePiecesPositions,
                 })
 
-                if (squaresTemp[0])
+                if (!squaresTemp[0]?.isEnemyPieceOnSquare)
                     possibleSquares.push({
                         ...squaresTemp[0],
                         effect: 'pawnEnPassant' as PieceMoveEffect,
@@ -464,6 +477,7 @@ function checkSquaresOneDir({
     blackPiecesPositions,
     whitePiecesPositions,
     canOnlyTake,
+    canOnlyMove,
 }: CheckSquaresOneDirProps) {
     const possibleSquares = [] as Array<PossibleSquare>
 
@@ -487,19 +501,22 @@ function checkSquaresOneDir({
             whitePiecesPositions,
             blackPiecesPositions,
         })
+
         if (isMovePossible) {
             const possibleSquare = {
                 ...squareForCheck,
                 isEnemyPieceOnSquare,
             }
-            //todo: create canOnlyMove
-            // if piece can't move but can take in this direction
+            // two checks for pawn, that can only move forward and only can take diagonally
             if (canOnlyTake) {
                 if (isEnemyPieceOnSquare) possibleSquares.push(possibleSquare)
                 return possibleSquares
             }
+            if (canOnlyMove) {
+                if (!isEnemyPieceOnSquare) possibleSquares.push(possibleSquare)
+            }
             // if piece can move and take in this direction
-            if (!canOnlyTake) {
+            if (!canOnlyMove) {
                 possibleSquares.push(possibleSquare)
             }
         }

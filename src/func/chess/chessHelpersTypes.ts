@@ -75,6 +75,7 @@ export interface CheckSquaresOneDirProps {
     moveX: MoveDirectionNum
     moveY: MoveDirectionNum
     canOnlyTake?: boolean
+    canOnlyMove?: boolean
 }
 
 export interface CheckMoveProps {

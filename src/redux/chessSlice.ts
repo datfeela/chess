@@ -191,11 +191,10 @@ const initialState: ChessState = {
             },
             pawn1: {
                 type: 'pawn',
-                // square: {
-                //     y: 7,
-                //     x: 1,
-                // },
-                square: null,
+                square: {
+                    y: 7,
+                    x: 1,
+                },
                 isOnStartingPosition: true,
             },
             pawn2: {
@@ -257,6 +256,24 @@ const initialState: ChessState = {
         },
     },
     isWhiteMove: true,
+    piecesTakenCount: {
+        white: {
+            pawn: 0,
+            rook: 0,
+            knight: 0,
+            bishop: 0,
+            queen: 0,
+            king: 0,
+        },
+        black: {
+            pawn: 0,
+            rook: 0,
+            knight: 0,
+            bishop: 0,
+            queen: 0,
+            king: 0,
+        },
+    },
     movesHistory: {
         movesCount: 0,
         moves: {},
@@ -326,10 +343,32 @@ const chessSlice = createSlice({
                 effect,
             }
         },
+        changePiece(state, action: PayloadAction<ChangePiecePayload>) {
+            const { color, piece, newType } = action.payload
+            state.pieces[color][piece].type = newType
+        },
+        removePiece(state, action: PayloadAction<PieceToRemove>) {
+            const { color, piece } = action.payload
+            state.pieces[color][piece].square = null
+            state.pieces[color][piece].isTaken = true
+        },
+        updatePiecesTaken(
+            state,
+            action: PayloadAction<UpdatePiecesTakenPayload>
+        ) {
+            const { color, type } = action.payload
+            state.piecesTakenCount[color][type] += 1
+        },
     },
 })
 
-export const { updatePieces, updateHistory } = chessSlice.actions
+export const {
+    updatePieces,
+    updateHistory,
+    changePiece,
+    removePiece,
+    updatePiecesTaken,
+} = chessSlice.actions
 export default chessSlice.reducer
 
 // TC
@@ -341,7 +380,25 @@ const createThunk = createAsyncThunk.withTypes<{
 
 export const makeMove = createThunk(
     'chess/makeMove',
-    (payload: MakeMovePayload, { dispatch }) => {
+    (payload: MakeMovePayload, { getState, dispatch }) => {
+        if (payload.effect === 'pawnEnPassant') {
+            const lastMovePiece = getState().chess.lastMove.piece
+            const color =
+                getState().chess.isWhiteMove === true
+                    ? 'black'
+                    : ('white' as PieceColor)
+            dispatch(removePiece({ color, piece: lastMovePiece }))
+        }
+
+        if (payload.enemyPiece?.piece) {
+            dispatch(
+                removePiece({
+                    color: payload.enemyPiece.color,
+                    piece: payload.enemyPiece.piece,
+                })
+            )
+        }
+
         dispatch(updateHistory(payload))
         dispatch(updatePieces(payload))
     }
@@ -358,6 +415,10 @@ export interface ChessState {
     }
     isWhiteMove: boolean
     movesHistory: MovesHistory
+    piecesTakenCount: {
+        white: PiecesTaken
+        black: PiecesTaken
+    }
     lastMove: Move
 }
 
@@ -376,6 +437,15 @@ export interface Piece {
 export interface Square {
     y: SquareNum
     x: SquareNum
+}
+
+export interface PieceToRemove {
+    color: PieceColor
+    piece: keyof Pieces
+}
+
+export type PiecesTaken = {
+    [key in PieceType]: number
 }
 
 export interface MovesHistory {
@@ -426,9 +496,22 @@ export interface MakeMovePayload {
     newPosition: Square
     isCheck: boolean
     effect?: PieceMoveEffect
-    //todo: isTake?
+    enemyPiece?: PieceToRemove
+}
+
+export interface ChangePiecePayload {
+    color: PieceColor
+    piece: keyof Pieces
+    newType: PieceType
+}
+
+export interface UpdatePiecesTakenPayload {
+    color: PieceColor
+    type: PieceType
 }
 
 export interface SetActiveHexesAction {
     hexes: Square[]
 }
+
+export type PawnChangeOptions = 'rook' | 'knight' | 'bishop' | 'queen'

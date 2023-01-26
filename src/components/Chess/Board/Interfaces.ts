@@ -2,6 +2,7 @@ import { PieceMoveEffect } from '../../../func/chess/chessHelpersTypes'
 import {
     PieceColor,
     Pieces,
+    PieceToRemove,
     PieceType,
     Square,
 } from '../../../redux/chessSlice'
@@ -31,6 +32,7 @@ export interface MakeMoveProps {
     squareCoords: Square
     isCheck: boolean
     effect?: PieceMoveEffect
+    enemyPiece?: PieceToRemove
 }
 
 export interface handlePieceClickProps {

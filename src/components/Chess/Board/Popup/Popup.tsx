@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useAppDispatch } from '../../../../hooks/redux'
+import { changePiece, PawnChangeOptions } from '../../../../redux/chessSlice'
 import { PawnChangePopup } from './PawnChangePopup/PawnChangePopup'
-import { LastMovePopupProps, PawnChangeOptions } from './PopupTypes'
+import { LastMovePopupProps } from './PopupTypes'
 
 export const Popup = ({
     lastMove,
@@ -11,17 +13,30 @@ export const Popup = ({
     let [isPopupActive, setIsPopupActive] = useState(false)
     const [isPopupPawnChangeActive, setIsPopupPawnChangeActive] =
         useState(false)
+    const [isCheckmatePopupActive, setIsCheckmatePopupActive] = useState(false)
 
+    const dispatch = useAppDispatch()
     const handlePawnChangePopupClick = (pieceType: PawnChangeOptions) => {
-        // dispatch change here with pieceType
+        dispatch(
+            changePiece({
+                piece: lastMove.piece,
+                color: color,
+                newType: pieceType,
+            })
+        )
         setIsPopupActive(false)
         setIsPopupPawnChangeActive(false)
     }
 
     useEffect(() => {
-        if (lastMove.effect === 'pawnChange' || isCheckmate || isStalemate)
+        if (lastMove.effect === 'pawnChange') {
             setIsPopupActive(true)
-        if (lastMove.effect === 'pawnChange') setIsPopupPawnChangeActive(true)
+            setIsPopupPawnChangeActive(true)
+        }
+        if (isCheckmate || isStalemate) {
+            setIsPopupActive(true)
+            setIsCheckmatePopupActive(true)
+        }
     }, [lastMove, isCheckmate, isStalemate])
 
     return (
@@ -42,6 +57,18 @@ export const Popup = ({
                     handlePopupClick={handlePawnChangePopupClick}
                     color={color}
                 />
+            ) : (
+                ''
+            )}
+            {isCheckmatePopupActive ? (
+                <div
+                    className='
+                        absolute top-2/5 w-full
+                        flex justify-center
+                    '
+                >
+                    {isCheckmate ? 'Шах и мат' : 'Пат'}
+                </div>
             ) : (
                 ''
             )}

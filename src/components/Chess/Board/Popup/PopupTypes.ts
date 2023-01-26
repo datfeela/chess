@@ -1,4 +1,8 @@
-import { Move, PieceColor } from '../../../../redux/chessSlice'
+import {
+    Move,
+    PawnChangeOptions,
+    PieceColor,
+} from '../../../../redux/chessSlice'
 
 export interface LastMovePopupProps {
     lastMove: Move
@@ -15,5 +19,3 @@ export interface PawnChangePopupProps {
     handlePopupClick: (pieceType: PawnChangeOptions) => void
     color: PieceColor
 }
-
-export type PawnChangeOptions = 'rook' | 'knight' | 'bishop' | 'queen'

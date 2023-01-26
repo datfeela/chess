@@ -13,6 +13,7 @@ import {
     ActivePieceNullable,
     ActiveSquares,
     handlePieceClickProps,
+    MakeMoveProps,
 } from '../Interfaces'
 import { Piece } from './Piece/Piece'
 
@@ -21,6 +22,7 @@ export const Pieces = ({
     activePiece,
     activatePiece,
     piecesCanBeTakenPositions,
+    makeMove,
 }: PiecesProps) => {
     // state
     const isWhiteMove = useAppSelector((state: RootState) =>
@@ -32,20 +34,26 @@ export const Pieces = ({
 
     // functions
     const handlePieceClick = (props: handlePieceClickProps) => {
-        const { color, currentSquare } = props
+        const { color, currentSquare, name } = props
         const isAllowedToMove =
             (isWhiteMove && color === 'white') ||
             (!isWhiteMove && color === 'black')
 
         if (isAllowedToMove) activatePiece(props)
         if (!isAllowedToMove) {
-            if (!activeSquares) return
+            if (!activeSquares || !activePiece) return
             for (let square of activeSquares) {
                 if (
                     square.x === currentSquare.x &&
                     square.y === currentSquare.y
                 ) {
-                    console.log('hello i want eat...')
+                    makeMove({
+                        squareCoords: currentSquare,
+                        activePiece,
+                        enemyPiece: { color, piece: name },
+                        isCheck: square.isCheck,
+                        effect: square.effect,
+                    })
                 }
             }
         }
@@ -58,6 +66,8 @@ export const Pieces = ({
 
         for (let pieceKey in piecesWithColor) {
             const pieceProps = piecesWithColor[pieceKey as keyof tPieces]
+
+            if (pieceProps.isTaken) continue
 
             let isPieceCanBeTaken = false
             for (let pos of piecesCanBeTakenPositions) {
@@ -116,4 +126,5 @@ interface PiecesProps {
     }: handlePieceClickProps) => void
     activeSquares: ActiveSquares
     piecesCanBeTakenPositions: Square[]
+    makeMove: (props: MakeMoveProps) => void
 }

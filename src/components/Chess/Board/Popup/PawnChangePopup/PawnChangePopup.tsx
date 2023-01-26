@@ -1,8 +1,5 @@
-import {
-    HandlePawnChangePopupClickProps,
-    PawnChangeOptions,
-    PawnChangePopupProps,
-} from '../PopupTypes'
+import { PawnChangeOptions } from '../../../../../redux/chessSlice'
+import { PawnChangePopupProps } from '../PopupTypes'
 
 export const PawnChangePopup = ({
     handlePopupClick,
@@ -37,6 +34,7 @@ export const PawnChangePopup = ({
 
         changeElements.push(
             <div
+                key={`${type}Option`}
                 onClick={() => {
                     handlePopupClick(type)
                 }}

@@ -30,7 +30,6 @@ export const Board = React.memo(() => {
     // active squares are linked to currently active piece: squares on which this piece can move
     const [activePiece, setActivePiece] = useState(null as ActivePieceNullable)
     const [activeSquares, setActiveSquares] = useState(null as ActiveSquares)
-    console.log(activeSquares)
 
     const [piecesCanBeTakenPositions, setPiecesCanBeTakenPositions] = useState(
         [] as Square[]
@@ -56,6 +55,7 @@ export const Board = React.memo(() => {
 
     // check for checkmate/stalemate
     useEffect(() => {
+        if (!lastMove.piece) return
         const colorToCheck = isWhiteMove ? 'white' : 'black'
         const piecesToCheck = piecesState[colorToCheck]
 
@@ -130,6 +130,7 @@ export const Board = React.memo(() => {
         squareCoords,
         isCheck,
         effect,
+        enemyPiece,
     }: MakeMoveProps) => {
         if (isCheckmate || isStalemate) return
         dispatch(
@@ -139,6 +140,7 @@ export const Board = React.memo(() => {
                 newPosition: squareCoords,
                 isCheck,
                 effect,
+                enemyPiece,
             })
         )
         setActivePiece(null)
@@ -164,13 +166,16 @@ export const Board = React.memo(() => {
                 activatePiece={activatePiece}
                 activeSquares={activeSquares}
                 piecesCanBeTakenPositions={piecesCanBeTakenPositions}
+                makeMove={makeMove}
             />
-            <Popup
-                color={isWhiteMove ? 'black' : 'white'}
-                lastMove={lastMove}
-                isCheckmate={isCheckmate}
-                isStalemate={isStalemate}
-            />
+            {lastMove.piece && (
+                <Popup
+                    color={isWhiteMove ? 'black' : 'white'}
+                    lastMove={lastMove}
+                    isCheckmate={isCheckmate}
+                    isStalemate={isStalemate}
+                />
+            )}
         </div>
     )
 })
