@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { useAppSelector } from '../../../../hooks/redux'
 import {
@@ -19,6 +20,16 @@ export const MovesHistory = () => {
     )
 
     const historyElements: JSX.Element[] = []
+
+    const wrapRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const movesEls = wrapRef.current?.children
+
+        if (!movesEls) return
+
+        movesEls[movesCount]?.scrollIntoView({ behavior: 'smooth' })
+    }, [isWhiteMove])
 
     for (let i in moves) {
         const move = moves[i]
@@ -45,6 +56,7 @@ export const MovesHistory = () => {
 
     return (
         <div
+            ref={wrapRef}
             className='
                 _movesHistory
                 py-2
