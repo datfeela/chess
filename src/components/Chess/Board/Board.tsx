@@ -55,7 +55,11 @@ export const Board = React.memo(() => {
 
     // check for checkmate/stalemate
     useEffect(() => {
-        if (!lastMove.piece) return
+        if (!lastMove.piece) {
+            setIsCheckmate(false)
+            setIsStalemate(false)
+            return
+        }
         const colorToCheck = isWhiteMove ? 'white' : 'black'
         const piecesToCheck = piecesState[colorToCheck]
 
