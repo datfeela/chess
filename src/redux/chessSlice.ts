@@ -309,11 +309,12 @@ const chessSlice = createSlice({
                     }
                 }
             }
-            state.isWhiteMove = !state.isWhiteMove //mb to thunk
+            state.isWhiteMove = !state.isWhiteMove
         },
         updateHistory(state, action: PayloadAction<MakeMovePayload>) {
             const { color, piece, newPosition, isCheck, effect } =
                 action.payload
+
             const { type, square } = state.pieces[color][piece]
 
             // if black move, we got full move, need to update general history
@@ -329,6 +330,7 @@ const chessSlice = createSlice({
                         previousPosition: square as Square,
                         newPosition,
                         isCheck,
+                        effect,
                     },
                 }
             }
@@ -359,6 +361,13 @@ const chessSlice = createSlice({
             const { color, type } = action.payload
             state.piecesTakenCount[color][type] += 1
         },
+        reset(state) {
+            state.pieces = initialState.pieces
+            state.isWhiteMove = initialState.isWhiteMove
+            state.piecesTakenCount = initialState.piecesTakenCount
+            state.movesHistory = initialState.movesHistory
+            state.lastMove = initialState.lastMove
+        },
     },
 })
 
@@ -368,6 +377,7 @@ export const {
     changePiece,
     removePiece,
     updatePiecesTaken,
+    reset,
 } = chessSlice.actions
 export default chessSlice.reducer
 
