@@ -1,5 +1,8 @@
 import { useAppSelector } from '../../../hooks/redux'
-import { selectIsWhiteMove } from '../../../redux/chessSelectors'
+import {
+    selectIsWhiteMove,
+    selectMovesHistory,
+} from '../../../redux/chessSelectors'
 import { RootState } from '../../../redux/store'
 import { MovesHistory } from './MovesHistory/MovesHistory'
 
@@ -8,24 +11,48 @@ export const Sidebar = () => {
         selectIsWhiteMove(state)
     )
 
+    const movesCount = useAppSelector((state: RootState) =>
+        selectMovesHistory(state)
+    ).movesCount
+
     return (
         <div
             className='
                 _sidebar
-                max-h-full min-h-1/4 overflow-y-scroll
-                px-4 py-2 my-auto 
-                border border-gray-400 border-solid
+                scrollbar
+                overflow-y-scroll 
+                h-full xl:max-h-3/5
+                px-4
+                border border-stone-900 border-solid
+                bg-slate-800
             '
         >
-            <span
+            <div
                 className='
+                sticky bg-slate-800
+                py-2
+                border-solid border-b border-white
+                top-0 w-full
+                flex justify-between items-center
+            '
+            >
+                <span
+                    className='
                     _whichMove
-                    block mb-3
                     font-bold text-xl 
                 '
-            >
-                {isWhiteMove ? 'White move' : 'Black move'}
-            </span>
+                >
+                    {isWhiteMove ? 'Ход белых' : 'Ход черных'}
+                </span>
+                <span
+                    className='
+                    font-bold text-xl
+                '
+                >
+                    Move {movesCount + 1}
+                </span>
+            </div>
+
             <MovesHistory />
         </div>
     )

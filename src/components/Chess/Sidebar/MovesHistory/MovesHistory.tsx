@@ -1,47 +1,45 @@
+import styled from 'styled-components'
 import { useAppSelector } from '../../../../hooks/redux'
 import {
+    selectIsWhiteMove,
     selectLastMove,
     selectMovesHistory,
 } from '../../../../redux/chessSelectors'
 import { RootState } from '../../../../redux/store'
+import { Move } from '../Move/Move'
 
 export const MovesHistory = () => {
-    const history = useAppSelector((state: RootState) =>
+    const { moves, movesCount } = useAppSelector((state: RootState) =>
         selectMovesHistory(state)
     )
 
     const lastMove = useAppSelector((state: RootState) => selectLastMove(state))
+    const isWhiteMove = useAppSelector((state: RootState) =>
+        selectIsWhiteMove(state)
+    )
 
     const historyElements: JSX.Element[] = []
 
-    for (let i in history.moves) {
-        const move = history.moves[i]
+    for (let i in moves) {
+        const move = moves[i]
         historyElements.push(
-            <div>
-                <span className='_moveNum'>{i} | </span>
-                <span
-                    className='
-                    _moveWhite
-                '
-                >
-                    {`${move.white.type} `}
-                    {`${move.white.previousPosition.x}-${move.white.previousPosition.y} -> `}
-                    {`${move.white.newPosition.x}-${move.white.newPosition.y}${
-                        move.white.isCheck ? '+' : ''
-                    } ||| `}
-                </span>
-                <span
-                    className='
-                    _moveBlack
-                '
-                >
-                    {`${move.black.type} `}
-                    {`${move.black.previousPosition.x}-${move.black.previousPosition.y} -> `}
-                    {`${move.black.newPosition.x}-${move.black.newPosition.y}${
-                        move.black.isCheck ? '+' : ''
-                    }`}
-                </span>
-            </div>
+            <MoveWrap>
+                <span className='_moveNum font-bold'>{i}</span>
+                <Move
+                    move={move.white}
+                    imgName={`/chess/pieces/w${move.white.type[0].toUpperCase()}${move.white.type.slice(
+                        1
+                    )}.svg`}
+                    color='white'
+                />
+                <Move
+                    move={move.black}
+                    imgName={`/chess/pieces/w${move.black.type[0].toUpperCase()}${move.black.type.slice(
+                        1
+                    )}.svg`}
+                    color='black'
+                />
+            </MoveWrap>
         )
     }
 
@@ -50,10 +48,30 @@ export const MovesHistory = () => {
             className='
                 _movesHistory
                 py-2
+                text-lg
             '
         >
-            <span className='block mb-3'>Move {history.movesCount + 1}</span>
             {historyElements}
+            {!isWhiteMove ? (
+                <MoveWrap>
+                    <span className='_moveNum font-bold'>{movesCount + 1}</span>
+                    <Move
+                        move={lastMove}
+                        imgName={`/chess/pieces/w${lastMove.type[0].toUpperCase()}${lastMove.type.slice(
+                            1
+                        )}.svg`}
+                        color='white'
+                    />
+                </MoveWrap>
+            ) : null}
         </div>
     )
 }
+
+const MoveWrap = styled.div`
+    display: grid;
+    align-items: center;
+    gap: 10px;
+    grid-template-columns: auto 1fr 1fr;
+    padding: 8px 0;
+`

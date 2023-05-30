@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useAppDispatch } from '../../../../hooks/redux'
-import { changePiece, PawnChangeOptions } from '../../../../redux/chessSlice'
+import {
+    changePiece,
+    PawnChangeOptions,
+    reset,
+} from '../../../../redux/chessSlice'
 import { PawnChangePopup } from './PawnChangePopup/PawnChangePopup'
 import { LastMovePopupProps } from './PopupTypes'
 
@@ -9,6 +13,7 @@ export const Popup = ({
     color,
     isCheckmate,
     isStalemate,
+    isWhiteMove,
 }: LastMovePopupProps) => {
     let [isPopupActive, setIsPopupActive] = useState(false)
     const [isPopupPawnChangeActive, setIsPopupPawnChangeActive] =
@@ -26,6 +31,10 @@ export const Popup = ({
         )
         setIsPopupActive(false)
         setIsPopupPawnChangeActive(false)
+    }
+
+    const handleReset = () => {
+        dispatch(reset())
     }
 
     useEffect(() => {
@@ -64,10 +73,33 @@ export const Popup = ({
                 <div
                     className='
                         absolute top-2/5 w-full
-                        flex justify-center
+                        flex items-center flex-col
+                        p-5
+                        bg-black
+                        bg-opacity-80
+                        text-xl
                     '
                 >
-                    {isCheckmate ? 'Шах и мат' : 'Пат'}
+                    <div
+                        className='
+                        mb-4
+                    '
+                    >
+                        {isCheckmate
+                            ? `Победа ${isWhiteMove ? 'черных' : 'белых'}`
+                            : 'Пат'}
+                    </div>
+                    <button
+                        className='
+                        py-2 px-5 bg-sky-600
+                        rounded-md
+                        opacity-80
+                        hover:opacity-100
+                    '
+                        onClick={handleReset}
+                    >
+                        Повторить
+                    </button>
                 </div>
             ) : (
                 ''

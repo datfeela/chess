@@ -9,6 +9,7 @@ export interface LastMovePopupProps {
     color: PieceColor
     isCheckmate: boolean
     isStalemate: boolean
+    isWhiteMove: boolean
 }
 
 export interface HandlePawnChangePopupClickProps {

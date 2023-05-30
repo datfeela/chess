@@ -153,7 +153,7 @@ export const Board = React.memo(() => {
             className='
             _Board 
             relative
-            w-full max-w-3xl aspect-square mx-auto
+            w-fit sm:h-full max-w-3xl aspect-square ml-auto mr-auto xl:mr-24
         '
         >
             <Squares
@@ -174,6 +174,7 @@ export const Board = React.memo(() => {
                     lastMove={lastMove}
                     isCheckmate={isCheckmate}
                     isStalemate={isStalemate}
+                    isWhiteMove={isWhiteMove}
                 />
             )}
         </div>
